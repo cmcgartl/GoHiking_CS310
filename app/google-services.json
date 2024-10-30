@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "982940860650",
+    "project_id": "gohiking-6e0b4",
+    "storage_bucket": "gohiking-6e0b4.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:982940860650:android:7461bd26e98fa59c47d793",
+        "android_client_info": {
+          "package_name": "com.example.gohiking_cs310"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBrAo5ZUwZHFkSBQf3jyIcZTiv2Fc6TV_M"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

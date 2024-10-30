@@ -33,10 +33,10 @@
 
         <!-- Logout Button -->
         <Button
-            android:id="@+id/button_logout"
+            android:id="@+id/button_signup"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Logout"
+            android:text="Sign Up"
             android:layout_marginStart="16dp" />
 
     </LinearLayout>

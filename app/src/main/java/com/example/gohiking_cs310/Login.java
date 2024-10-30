@@ -10,7 +10,6 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class Login extends AppCompatActivity {
-
     private EditText editTextUsername, editTextPassword;
     private Button buttonLogin;
 
@@ -18,6 +17,7 @@ public class Login extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
 
         Button goHomeButton = findViewById(R.id.button_go_home);
 

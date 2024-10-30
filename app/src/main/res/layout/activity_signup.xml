@@ -11,7 +11,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Login"
+        android:text="Sign Up"
         android:textSize="24sp"
         android:textStyle="bold"
         android:layout_marginBottom="24dp" />
@@ -20,7 +20,7 @@
         android:id="@+id/editTextUsername"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Username"
+        android:hint="Email"
         android:inputType="text"
         android:layout_marginBottom="16dp" />
 
@@ -32,11 +32,6 @@
         android:inputType="textPassword"
         android:layout_marginBottom="24dp" />
 
-    <Button
-        android:id="@+id/buttonLogin"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Login" />
     <Button
         android:id="@+id/buttonSignUp"
         android:layout_width="match_parent"

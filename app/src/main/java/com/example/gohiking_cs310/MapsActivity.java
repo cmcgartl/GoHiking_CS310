@@ -35,7 +35,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         //Initialize buttons and set click listeners
         Button loginButton = findViewById(R.id.button_login);
-        Button logoutButton = findViewById(R.id.button_logout);
+        Button signUpButton = findViewById(R.id.button_signup);
 
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -45,10 +45,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         });
 
-        logoutButton.setOnClickListener(new View.OnClickListener() {
+        signUpButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-               // Intent intent = new Intent(MapsActivity.this, Logout.class);
+                Intent intent = new Intent(MapsActivity.this, SignUp.class);
+                startActivity(intent);
             }
         });
     }
