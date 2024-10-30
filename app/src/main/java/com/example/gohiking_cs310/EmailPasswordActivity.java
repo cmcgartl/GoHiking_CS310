@@ -1,5 +1,6 @@
 package com.example.gohiking_cs310;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Toast;
 
@@ -30,6 +31,29 @@ public class EmailPasswordActivity extends AppCompatActivity {
         if (currentUser != null) {
             reload();
         }
+    }
+
+    private void loginUser(String email, String password) {
+        mAuth.signInWithEmailAndPassword(email, password)
+                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+                            // Login success, navigate to another activity or update UI
+                            FirebaseUser user = mAuth.getCurrentUser();
+                            Toast.makeText(EmailPasswordActivity.this, "Login successful!", Toast.LENGTH_SHORT).show();
+
+                            // Proceed to the main app screen or another activity
+                            Intent intent = new Intent(EmailPasswordActivity.this, MapsActivity.class);
+                            startActivity(intent);
+                            finish();
+                        } else {
+                            // If login fails, display a message to the user.
+                            Toast.makeText(EmailPasswordActivity.this, "Login failed. " + task.getException().getMessage(),
+                                    Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
     }
 
     private void registerUser(String email, String password) {
