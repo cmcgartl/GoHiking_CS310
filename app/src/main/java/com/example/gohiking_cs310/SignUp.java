@@ -15,6 +15,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 public class SignUp extends AppCompatActivity {
     private EditText editTextUsername, editTextPassword;
@@ -68,6 +69,10 @@ public class SignUp extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             // Sign-up successful, navigate to MapsActivity
                             FirebaseUser user = mAuth.getCurrentUser();
+                            String userID = mAuth.getCurrentUser().getUid();
+                            User newUser = new User(userID, email);
+                            FirebaseFirestore db = FirebaseFirestore.getInstance();
+                            db.collection("Users").document(userID).set(newUser);
                             Toast.makeText(SignUp.this, "Registration successful!", Toast.LENGTH_SHORT).show();
                             Intent intent = new Intent(SignUp.this, MapsActivity.class);
                             startActivity(intent);
