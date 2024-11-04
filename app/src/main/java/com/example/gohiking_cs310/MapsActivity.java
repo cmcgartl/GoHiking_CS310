@@ -17,6 +17,7 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -48,19 +49,47 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        // Initialize buttons and set click listeners
+        Boolean isLoggedIn = FirebaseAuth.getInstance().getCurrentUser() != null;
+        Button profileButton = findViewById(R.id.button_profile);
+        Button groupButton = findViewById(R.id.button_group);
         Button loginButton = findViewById(R.id.button_login);
         Button signUpButton = findViewById(R.id.button_signup);
 
-        loginButton.setOnClickListener(v -> {
-            Intent intent = new Intent(MapsActivity.this, Login.class);
-            startActivity(intent);
-        });
+        if (!isLoggedIn) {
 
-        signUpButton.setOnClickListener(v -> {
-            Intent intent = new Intent(MapsActivity.this, SignUp.class);
-            startActivity(intent);
-        });
+            // Initialize buttons and set click listeners
+            loginButton.setVisibility(View.VISIBLE);
+            signUpButton.setVisibility(View.VISIBLE);
+            profileButton.setVisibility(View.GONE);
+            groupButton.setVisibility(View.GONE);
+
+            loginButton.setOnClickListener(v -> {
+                Intent intent = new Intent(MapsActivity.this, Login.class);
+                startActivity(intent);
+            });
+
+            signUpButton.setOnClickListener(v -> {
+                Intent intent = new Intent(MapsActivity.this, SignUp.class);
+                startActivity(intent);
+            });
+        }
+        else{
+            // Initialize buttons and set click listeners
+            loginButton.setVisibility(View.GONE);
+            signUpButton.setVisibility(View.GONE);
+            profileButton.setVisibility(View.VISIBLE);
+            groupButton.setVisibility(View.VISIBLE);
+
+            profileButton.setOnClickListener(v -> {
+                Intent intent = new Intent(MapsActivity.this, UserActivity.class);
+                startActivity(intent);
+            });
+
+            groupButton.setOnClickListener(v -> {
+                Intent intent = new Intent(MapsActivity.this, JoinAndViewGroups.class);
+                startActivity(intent);
+            });
+        }
     }
 
     @Override
