@@ -70,7 +70,6 @@ public class Login extends AppCompatActivity {
                             // Login success, navigate to MapsActivity
                             FirebaseUser user = mAuth.getCurrentUser();
                             Toast.makeText(Login.this, "Login successful!", Toast.LENGTH_SHORT).show();
-
                             // Go to MapsActivity
                             Intent intent = new Intent(Login.this, UserActivity.class);
                             startActivity(intent);
