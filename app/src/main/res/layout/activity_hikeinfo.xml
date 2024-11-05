@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:background="@drawable/redwood">
+
+    <!-- Back to Profile Button -->
+    <TextView
+        android:id="@+id/text_hike_name"
+        android:layout_width="196dp"
+        android:layout_height="56dp"
+        android:layout_marginTop="8dp"
+        android:backgroundTint="#D71313"
+        android:shadowColor="#E01919"
+        android:shadowRadius="50"
+        android:text="MY PROFILE"
+        android:textColor="#FFFFFF"
+        android:textColorHighlight="#C01B1B"
+        android:textColorHint="#A62626"
+        android:textSize="34sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.496"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/buttonBackToProfile"
+        android:layout_width="68dp"
+        android:layout_height="61dp"
+        android:backgroundTint="#BFFFFFFF"
+        android:text="Back"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:layout_editor_absoluteY="7dp" />
+
+    <!-- Show Hike Details Button -->
+    <Button
+        android:id="@+id/buttonShowDetails"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Show Hike Details"
+        app:layout_constraintTop_toBottomOf="@id/text_hike_name"
+        android:layout_marginTop="150dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Add to My List Button -->
+    <Button
+        android:id="@+id/buttonAddHike"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Add to My List"
+        app:layout_constraintTop_toBottomOf="@id/buttonShowDetails"
+        android:layout_marginTop="20dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -65,7 +65,7 @@ public class UserActivity extends AppCompatActivity {
             EditText searchInput = findViewById(R.id.editTextSearchHike);
             String searchQuery = searchInput.getText().toString().trim();
             if (!searchQuery.isEmpty()) {
-                searchForHikes(searchQuery);
+                hikeQuery(searchQuery);
             } else {
                 Toast.makeText(UserActivity.this, "Please enter a search term.", Toast.LENGTH_SHORT).show();
             }
@@ -77,6 +77,14 @@ public class UserActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(UserActivity.this, MapsActivity.class);
                 startActivity(intent);
+            }
+        });
+
+        Button myHikes = findViewById(R.id.buttonMyHikes);
+        myHikes.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showCustomHikes();
             }
         });
     }
@@ -209,6 +217,67 @@ public class UserActivity extends AppCompatActivity {
                 });
     }
 
+    private void hikeQuery(String hike) {
+        db.collection("Hikes")
+                .whereEqualTo("Name", hike)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        QuerySnapshot snapshot = task.getResult();
+                        if (!snapshot.isEmpty()) {
+                            for (QueryDocumentSnapshot document : snapshot) {
+                                String hikeID = document.getId();
+                                Boolean bathrooms = document.getBoolean("Bathrooms") != null ? document.getBoolean("Bathrooms") : false;
+                                Long difficulty = document.getLong("Difficulty") != null ? document.getLong("Difficulty") : 0;
+                                Long lat = document.getLong("Lat") != null ? document.getLong("Lat") : 0;
+                                Long hikelong = document.getLong("Long") != null ? document.getLong("Long") : 0;
+                                String name = document.getString("Name") != null ? document.getString("Name") : "Unknown";
+                                Boolean parking = document.getBoolean("Parking") != null ? document.getBoolean("Parking") : false;
+                                ArrayList<Double> ratings = document.get("Ratings") != null ? (ArrayList<Double>) document.get("Ratings") : new ArrayList<>();
+                                ArrayList<String> reviews = document.get("Reviews") != null ? (ArrayList<String>) document.get("Reviews") : new ArrayList<>();
+                                String conditions = document.getString("Trail Conditions") != null ? document.getString("Trail Conditions") : "Not available";
+                                Boolean markers = document.getBoolean("Trail Markers") != null ? document.getBoolean("Trail Markers") : false;
+                                Boolean trash = document.getBoolean("Trash Cans") != null ? document.getBoolean("Trash Cans") : false;
+                                Boolean water = document.getBoolean("Water Fountains") != null ? document.getBoolean("Water Fountains") : false;
+                                Boolean wifi = document.getBoolean("WiFi") != null ? document.getBoolean("WiFi") : false;
+
+
+                                Hike queriedHike = new Hike(
+                                        hikeID,
+                                        name,
+                                        difficulty.intValue(),
+                                        lat.doubleValue(),
+                                        hikelong.doubleValue(),
+                                        bathrooms,
+                                        parking,
+                                        ratings,
+                                        reviews,
+                                        conditions,
+                                        markers,
+                                        trash,
+                                        water,
+                                        wifi
+                                );
+
+
+                                if (queriedHike != null) {
+                                    Log.d("HikeActivity", "Hike details loaded: " + queriedHike.getName());
+                                } else {
+                                    Log.e("HikeActivity", "Hike object is null!");
+                                }
+
+
+                                Intent intent = new Intent(UserActivity.this, HikeActivity.class);
+                                intent.putExtra("hikeObject", queriedHike);
+                                startActivity(intent);
+                            }
+                        } else {
+                            Toast.makeText(UserActivity.this, "No hike found", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+    }
+
     // Method to show the search results in a popup
     private void showSearchResultsDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -221,5 +290,31 @@ public class UserActivity extends AppCompatActivity {
 
         builder.setPositiveButton("OK", (dialog, which) -> dialog.dismiss());
         builder.create().show();
+    }
+
+    private void showCustomHikes() {
+        String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        db.collection("Users").document(currentUserId).get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        ArrayList<String> userHikes = (ArrayList<String>) documentSnapshot.get("customHikes");
+                        if (userHikes != null && !userHikes.isEmpty()) {
+                            StringBuilder hikeList = new StringBuilder("My Hikes: " + "\n");
+                            for (int i = 0; i < userHikes.size(); i++) {
+                                hikeList.append(userHikes.get(i)).append("\n");
+                            }
+                            new android.app.AlertDialog.Builder(UserActivity.this)
+                                    .setTitle("Custom Hikes: ")
+                                    .setMessage(userHikes.toString())
+                                    .setPositiveButton("Close", (dialog, which) -> dialog.dismiss())
+                                    .show();
+                        } else {
+                            Toast.makeText(UserActivity.this, "No custom hikes added.", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                })
+                .addOnFailureListener(e ->
+                        Toast.makeText(UserActivity.this, "Failed to fetch custom hikes.", Toast.LENGTH_SHORT).show()
+                );
     }
 }

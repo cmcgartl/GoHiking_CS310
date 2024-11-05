@@ -1,9 +1,11 @@
 package com.example.gohiking_cs310;
 
 import com.google.firebase.firestore.PropertyName;
+
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class Hike {
+public class Hike implements Serializable {
     private String id;
     private String name;
     private int difficulty;

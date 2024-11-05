@@ -3,6 +3,7 @@ package com.example.gohiking_cs310;
 import androidx.fragment.app.FragmentActivity;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -33,6 +34,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private FirebaseFirestore db;
     private CollectionReference hikesCollection;
     private HashMap<Marker, Hike> markerHikeMap = new HashMap<>();
+    private HashMap<String, Hike> HikeIDMap = new HashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +56,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Button groupButton = findViewById(R.id.button_group);
         Button loginButton = findViewById(R.id.button_login);
         Button signUpButton = findViewById(R.id.button_signup);
+
 
         if (!isLoggedIn) {
 
@@ -122,11 +125,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                             // Map the marker to its corresponding hike
                             markerHikeMap.put(marker, hike);
+                            HikeIDMap.put(hike.getId(), hike);
                         }
 
                         // Set a listener for marker clicks to show detailed info
                         mMap.setOnMarkerClickListener(marker -> {
-                            showHikeDetails(markerHikeMap.get(marker));
+                            showHikeDetails(this, markerHikeMap.get(marker));
                             return false; // Return false to also show the default info window
                         });
 
@@ -137,7 +141,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     }
                 });
     }
-    private void showHikeDetails(Hike hike) {
+    public static void showHikeDetails(Context context, Hike hike) {
         if (hike == null) return;
 
 
@@ -171,7 +175,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 "WiFi: " + (hike.isWifi() ? "Yes" : "No") + "\n");
 
         // Create and show an AlertDialog with the hike details
-        new AlertDialog.Builder(this)
+        new AlertDialog.Builder(context)
                 .setTitle(hike.getName())
                 .setMessage(hikeDetails.toString())
                 .setPositiveButton("Close", (dialog, which) -> dialog.dismiss())
