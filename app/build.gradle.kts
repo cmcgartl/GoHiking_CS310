@@ -46,6 +46,7 @@ dependencies {
     implementation(libs.play.services.maps)
     implementation(libs.constraintlayout)
     implementation("com.google.android.gms:play-services-maps:19.0.0")
+    implementation(libs.cardview)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
