@@ -10,17 +10,24 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.DocumentSnapshot;
+
 
 import java.util.ArrayList;
 
 public class UserActivity extends AppCompatActivity {
     private FirebaseFirestore db;
     private ArrayList<String> friendsList = new ArrayList<>();
+    private ArrayList<String> hikesList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,6 +59,17 @@ public class UserActivity extends AppCompatActivity {
 
         Button myFriendsButton = findViewById(R.id.buttonMyFriends);
         myFriendsButton.setOnClickListener(v -> fetchAndShowFriends());
+
+        Button searchButton = findViewById(R.id.buttonSearchHike);
+        searchButton.setOnClickListener(v -> {
+            EditText searchInput = findViewById(R.id.editTextSearchHike);
+            String searchQuery = searchInput.getText().toString().trim();
+            if (!searchQuery.isEmpty()) {
+                searchForHikes(searchQuery);
+            } else {
+                Toast.makeText(UserActivity.this, "Please enter a search term.", Toast.LENGTH_SHORT).show();
+            }
+        });
 
         Button backToHomeButton = findViewById(R.id.buttonBackHome);
         backToHomeButton.setOnClickListener(new View.OnClickListener() {
@@ -154,6 +172,50 @@ public class UserActivity extends AppCompatActivity {
 
         String[] friendsArray = friendsList.toArray(new String[0]);
         builder.setItems(friendsArray, (dialog, which) -> {
+
+        });
+
+        builder.setPositiveButton("OK", (dialog, which) -> dialog.dismiss());
+        builder.create().show();
+    }
+
+    private void searchForHikes(String searchQuery) {
+        hikesList.clear();
+
+        // Query the "Hikes" collection in Firestore
+        db.collection("Hikes")
+                .orderBy("name")
+                .startAt(searchQuery)
+                .endAt(searchQuery + "\uf8ff") // Matches hikes whose names start with the search term
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        for (DocumentSnapshot document : task.getResult()) {
+                            String hikeName = document.getString("name");
+                            if (hikeName != null) {
+                                hikesList.add(hikeName);
+                            }
+                        }
+                        if (!hikesList.isEmpty()) {
+                            showSearchResultsDialog();
+                        } else {
+                            Toast.makeText(getApplicationContext(), "No hikes found matching your search.", Toast.LENGTH_SHORT).show();
+                        }
+
+                    } else {
+                        Toast.makeText(getApplicationContext(), "Error searching for hikes.", Toast.LENGTH_SHORT).show();
+
+                    }
+                });
+    }
+
+    // Method to show the search results in a popup
+    private void showSearchResultsDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Search Results");
+
+        String[] hikesArray = hikesList.toArray(new String[0]);
+        builder.setItems(hikesArray, (dialog, which) -> {
 
         });
 
