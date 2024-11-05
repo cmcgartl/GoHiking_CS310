@@ -39,9 +39,7 @@ public class User {
     }
 
 
-    public List<String> getFriends() {
-        return friends;
-    }
+    public List<String> getFriends() {return friends;}
 
     public void addFriend(String friendId) {
         friends.add(friendId);

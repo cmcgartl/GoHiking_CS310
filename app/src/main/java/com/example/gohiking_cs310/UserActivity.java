@@ -7,6 +7,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FieldValue;
@@ -14,8 +16,11 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.util.ArrayList;
+
 public class UserActivity extends AppCompatActivity {
     private FirebaseFirestore db;
+    private ArrayList<String> friendsList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,15 +29,13 @@ public class UserActivity extends AppCompatActivity {
 
         db = FirebaseFirestore.getInstance();
 
-        // Back to Home button setup
-        Button buttonBackToHome = findViewById(R.id.buttonBackToHome);
+        Button buttonBackToHome = findViewById(R.id.buttonBackHome);
         buttonBackToHome.setOnClickListener(v -> {
             Intent intent = new Intent(UserActivity.this, MapsActivity.class);
             startActivity(intent);
             finish(); // Optional: Close the current activity if needed
         });
 
-        // Add Friend button setup
         Button addFriend = findViewById(R.id.buttonAddFriend);
         addFriend.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -44,6 +47,18 @@ public class UserActivity extends AppCompatActivity {
                 } else {
                     Toast.makeText(UserActivity.this, "Please enter an email.", Toast.LENGTH_SHORT).show();
                 }
+            }
+        });
+
+        Button myFriendsButton = findViewById(R.id.buttonMyFriends);
+        myFriendsButton.setOnClickListener(v -> fetchAndShowFriends());
+
+        Button backToHomeButton = findViewById(R.id.buttonBackHome);
+        backToHomeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(UserActivity.this, MapsActivity.class);
+                startActivity(intent);
             }
         });
     }
@@ -93,5 +108,56 @@ public class UserActivity extends AppCompatActivity {
                         Toast.makeText(UserActivity.this, "Failed to fetch user data.", Toast.LENGTH_SHORT).show();
                     }
                 });
+    }
+
+    private void fetchAndShowFriends() {
+        String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+        db.collection("Users").document(currentUserId).get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        ArrayList<String> friends = (ArrayList<String>) documentSnapshot.get("friends");
+                        if (friends != null && !friends.isEmpty()) {
+                            fetchFriendDetails(friends);
+                        } else {
+                            Toast.makeText(UserActivity.this, "You have no friends added.", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(UserActivity.this, "Failed to fetch friends.", Toast.LENGTH_SHORT).show();
+                });
+    }
+
+    private void fetchFriendDetails(ArrayList<String> friendIds) {
+        friendsList.clear();
+        for (String friendId : friendIds) {
+            db.collection("Users").document(friendId).get()
+                    .addOnSuccessListener(documentSnapshot -> {
+                        if (documentSnapshot.exists()) {
+                            String friendEmail = documentSnapshot.getString("email");
+                            friendsList.add(friendEmail);
+                            if (friendsList.size() == friendIds.size()) {
+                                showFriendsDialog();
+                            }
+                        }
+                    })
+                    .addOnFailureListener(e -> {
+                        Toast.makeText(UserActivity.this, "Failed to fetch friend details.", Toast.LENGTH_SHORT).show();
+                    });
+        }
+    }
+
+    private void showFriendsDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Your Friends");
+
+        String[] friendsArray = friendsList.toArray(new String[0]);
+        builder.setItems(friendsArray, (dialog, which) -> {
+
+        });
+
+        builder.setPositiveButton("OK", (dialog, which) -> dialog.dismiss());
+        builder.create().show();
     }
 }

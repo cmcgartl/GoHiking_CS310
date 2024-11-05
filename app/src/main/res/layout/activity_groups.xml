@@ -2,28 +2,34 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/redwood"
+    android:gravity="center"
     android:orientation="vertical"
-    android:padding="24dp"
-    android:gravity="center">
+    android:padding="24dp">
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Group Activities"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        android:layout_marginBottom="24dp" />
+        android:layout_marginBottom="24dp"
+        android:shadowColor="#FF0000"
+        android:shadowRadius="50"
+        android:text="GROUP ACTIVITIES"
+        android:textColor="#FFFFFF"
+        android:textSize="34sp"
+        android:textStyle="bold" />
 
     <Button
         android:id="@+id/creategroup"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:backgroundTint="#BFFFFFFF"
         android:text="Create New Group" />
 
     <Button
         android:id="@+id/go_home"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:backgroundTint="#BFFFFFFF"
         android:text="Go Home" />
 
     <androidx.recyclerview.widget.RecyclerView
