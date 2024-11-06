@@ -23,6 +23,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 
 
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class UserActivity extends AppCompatActivity {
     private FirebaseFirestore db;
@@ -157,19 +158,28 @@ public class UserActivity extends AppCompatActivity {
 
     private void fetchFriendDetails(ArrayList<String> friendIds) {
         friendsList.clear();
+        // A counter to track completed fetch operations
+        AtomicInteger counter = new AtomicInteger(0);
+
         for (String friendId : friendIds) {
             db.collection("Users").document(friendId).get()
                     .addOnSuccessListener(documentSnapshot -> {
                         if (documentSnapshot.exists()) {
                             String friendEmail = documentSnapshot.getString("email");
                             friendsList.add(friendEmail);
-                            if (friendsList.size() == friendIds.size()) {
-                                showFriendsDialog();
-                            }
+                        }
+                        // Increment the counter after each success
+                        if (counter.incrementAndGet() == friendIds.size()) {
+                            // Show dialog once all friend details are fetched
+                            showFriendsDialog();
                         }
                     })
                     .addOnFailureListener(e -> {
                         Toast.makeText(UserActivity.this, "Failed to fetch friend details.", Toast.LENGTH_SHORT).show();
+                        // Also increment the counter in case of failure
+                        if (counter.incrementAndGet() == friendIds.size()) {
+                            showFriendsDialog();
+                        }
                     });
         }
     }
