@@ -23,11 +23,13 @@ import com.google.firebase.firestore.DocumentSnapshot;
 
 
 import java.util.ArrayList;
+import java.util.Map;
 
 public class UserActivity extends AppCompatActivity {
     private FirebaseFirestore db;
     private ArrayList<String> friendsList = new ArrayList<>();
     private ArrayList<String> hikesList = new ArrayList<>();
+    private Boolean pub;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,8 +42,30 @@ public class UserActivity extends AppCompatActivity {
         buttonBackToHome.setOnClickListener(v -> {
             Intent intent = new Intent(UserActivity.this, MapsActivity.class);
             startActivity(intent);
-            finish(); // Optional: Close the current activity if needed
+            finish();
         });
+
+        Button privacy = findViewById(R.id.buttonPrivacy);
+        privacy.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                togglePrivacy(privacy);
+            }
+        });
+        String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        db.collection("Users").document(currentUserId).get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        pub  = (Boolean)documentSnapshot.get("Public");
+                        if(pub){
+                            privacy.setText("Privacy: Public \n Click to Toggle");
+                        }
+                        else{
+                            privacy.setText("Privacy: Private \n Click to Toggle");
+                        }
+                    }
+                });
+
 
         Button addFriend = findViewById(R.id.buttonAddFriend);
         addFriend.setOnClickListener(new View.OnClickListener() {
@@ -241,7 +265,6 @@ public class UserActivity extends AppCompatActivity {
                                 Boolean water = document.getBoolean("Water Fountains") != null ? document.getBoolean("Water Fountains") : false;
                                 Boolean wifi = document.getBoolean("WiFi") != null ? document.getBoolean("WiFi") : false;
 
-
                                 Hike queriedHike = new Hike(
                                         hikeID,
                                         name,
@@ -258,8 +281,6 @@ public class UserActivity extends AppCompatActivity {
                                         water,
                                         wifi
                                 );
-
-
                                 if (queriedHike != null) {
                                     Log.d("HikeActivity", "Hike details loaded: " + queriedHike.getName());
                                 } else {
@@ -316,5 +337,27 @@ public class UserActivity extends AppCompatActivity {
                 .addOnFailureListener(e ->
                         Toast.makeText(UserActivity.this, "Failed to fetch custom hikes.", Toast.LENGTH_SHORT).show()
                 );
+    }
+
+    private void togglePrivacy(Button button){
+        String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        db.collection("Users").document(currentUserId).get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        pub  = (Boolean)documentSnapshot.get("Public");
+                        if(pub){
+                            pub = false;
+                            db.collection("Users").document(currentUserId)
+                                    .update("Public", pub);
+                            button.setText("Privacy: Private \n Click to Toggle");
+                        }
+                        else{
+                            pub = true;
+                            db.collection("Users").document(currentUserId)
+                                    .update("Public", pub);
+                            button.setText("Privacy: Public \n Click to Toggle");
+                        }
+                    }
+                });
     }
 }

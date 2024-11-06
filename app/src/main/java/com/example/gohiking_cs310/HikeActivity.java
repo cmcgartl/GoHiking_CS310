@@ -104,7 +104,7 @@ public class HikeActivity extends AppCompatActivity {
                 "Water Fountains: " + (hike.isWaterFountains() ? "Yes" : "No") + "\n" +
                 "WiFi: " + (hike.isWifi() ? "Yes" : "No") + "\n");
 
-        // Create and show an AlertDialog with the hike details
+
         new AlertDialog.Builder(HikeActivity.this)
                 .setTitle(hike.getName())
                 .setMessage(hikeDetails.toString())
@@ -120,10 +120,8 @@ public class HikeActivity extends AppCompatActivity {
             Toast.makeText(HikeActivity.this, "Hike information is missing.", Toast.LENGTH_SHORT).show();
             return;
         }
-
-        // Directly access the user's document using their ID
         db.collection("Users").document(currentUserId)
-                .update("customHikes", FieldValue.arrayUnion(hike.getName())) // Assuming you want to add just the name of the hike
+                .update("customHikes", FieldValue.arrayUnion(hike.getName()))
                 .addOnSuccessListener(aVoid -> {
                     Log.d("HikeActivity", hike.getName() + " successfully added to custom hikes list.");
                     Toast.makeText(HikeActivity.this, hike.getName() + " added to custom hikes list", Toast.LENGTH_SHORT).show();
