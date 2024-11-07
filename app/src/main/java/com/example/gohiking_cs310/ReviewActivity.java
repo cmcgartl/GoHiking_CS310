@@ -2,6 +2,7 @@ package com.example.gohiking_cs310;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -24,7 +25,7 @@ public class ReviewActivity extends AppCompatActivity {
     private RatingBar ratingBar;
     private EditText reviewEditText;
     private ArrayList<String> reviews = new ArrayList<>();
-    private ArrayList<Double> ratings = new ArrayList<>();
+    private ArrayList<Long> ratings = new ArrayList<>();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -56,9 +57,11 @@ public class ReviewActivity extends AppCompatActivity {
     private void loadReviews() {
         db.collection("Hikes").document(hikeId).get().addOnSuccessListener(documentSnapshot -> {
             if (documentSnapshot.exists()) {
-                reviews = (ArrayList<String>) documentSnapshot.get("reviews");
-                ratings = (ArrayList<Double>) documentSnapshot.get("ratings");
-
+                Log.d("ReviewActivity", "Document exists");
+                reviews = (ArrayList<String>) documentSnapshot.get("Reviews");
+                ratings = (ArrayList<Long>) documentSnapshot.get("Ratings");
+                Log.d("ReviewActivity", "Reviews: " + reviews);
+                Log.d("ReviewActivity", "Ratings: " + ratings);
                 displayReviews();
                 displayAverageRating();
             }
@@ -67,9 +70,13 @@ public class ReviewActivity extends AppCompatActivity {
 
     private void displayReviews() {
         StringBuilder reviewsText = new StringBuilder();
+        reviewsText.append("User Reviews and Ratings: \n\n");
+        int i = 0;
         if (reviews != null && !reviews.isEmpty()) {
             for (String review : reviews) {
-                reviewsText.append("- ").append(review).append("\n\n");
+                if (i < ratings.size()) reviewsText.append("- ").append("\"" + review + "\"" + "\t (" + String.valueOf(ratings.get(i)) + "/5)").append("\n");
+                else reviewsText.append("- ").append("\"" + review + "\"").append("\n");
+                i++;
             }
         } else {
             reviewsText.append("No reviews yet.");
@@ -79,12 +86,12 @@ public class ReviewActivity extends AppCompatActivity {
 
     private void displayAverageRating() {
         if (ratings != null && !ratings.isEmpty()) {
-            double total = 0;
-            for (double rating : ratings) {
+            Long total = 0L;
+            for (Long rating : ratings) {
                 total += rating;
             }
-            double averageRating = total / ratings.size();
-            String averageRatingText = "Average Rating: " + String.format("%.1f", averageRating) + "/5";
+            long averageRating = total / ratings.size();
+            String averageRatingText = "Average Rating: " + averageRating;
             ((TextView) findViewById(R.id.average_rating_text_view)).setText(averageRatingText);
         } else {
             ((TextView) findViewById(R.id.average_rating_text_view)).setText("No ratings yet.");
@@ -97,10 +104,10 @@ public class ReviewActivity extends AppCompatActivity {
 
         if (!reviewText.isEmpty() && rating > 0) {
             reviews.add(reviewText);
-            ratings.add((double) rating);
+            ratings.add((long) rating);
 
             db.collection("Hikes").document(hikeId)
-                    .update("reviews", reviews, "ratings", ratings)
+                    .update("Reviews", reviews, "Ratings", ratings)
                     .addOnSuccessListener(aVoid -> {
                         Toast.makeText(this, "Review submitted!", Toast.LENGTH_SHORT).show();
                         reviewEditText.setText("");

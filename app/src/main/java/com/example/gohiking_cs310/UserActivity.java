@@ -323,6 +323,7 @@ public class UserActivity extends AppCompatActivity {
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         QuerySnapshot snapshot = task.getResult();
+
                         if (!snapshot.isEmpty()) {
                             for (QueryDocumentSnapshot document : snapshot) {
                                 String hikeID = document.getId();

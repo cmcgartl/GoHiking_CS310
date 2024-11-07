@@ -10,70 +10,81 @@
         android:id="@+id/average_rating_text_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="144dp"
-        android:layout_marginTop="76dp"
-        android:layout_marginEnd="132dp"
-        android:background="#BFFFFFFF"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="32dp"
+        android:background="#FFF0F0F0"
         android:text="Average Rating: 0.0/5"
+        android:textColor="#000000"
+        android:textSize="18sp"
+        android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/review_list_text_view"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="157dp"
-        android:layout_marginTop="26dp"
-        android:layout_marginEnd="158dp"
-        android:background="#BFFFFFFF"
-        android:backgroundTint="#BFFFFFFF"
+        android:layout_marginTop="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:background="#FFF0F0F0"
+        android:padding="16dp"
         android:text="No reviews yet."
+        android:textColor="#000000"
+        android:textSize="16sp"
+        android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/average_rating_text_view" />
 
-    <RatingBar
-        android:id="@+id/rating_bar"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:id="@+id/rating_container"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="57dp"
-        android:layout_marginTop="28dp"
-        android:layout_marginEnd="58dp"
-        android:background="#A57272"
-        android:backgroundTint="#54FFFFFF"
-        android:progressTint="#BFFFC107"
-        android:stepSize="1.0"
+        android:layout_marginTop="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:background="#FFF0F0F0"
+        android:padding="16dp"
+        android:gravity="center"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/review_list_text_view" />
+        app:layout_constraintTop_toBottomOf="@+id/review_list_text_view">
+
+        <RatingBar
+            android:id="@+id/rating_bar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:progressTint="#FFC107"
+            android:stepSize="1.0" />
+    </LinearLayout>
 
     <EditText
         android:id="@+id/review_edit_text"
-        android:layout_width="256dp"
+        android:layout_width="0dp"
         android:layout_height="48dp"
-        android:layout_marginStart="77dp"
-        android:layout_marginTop="300dp"
-        android:layout_marginEnd="78dp"
-        android:layout_marginBottom="26dp"
-        android:background="#BFFFFFFF"
+        android:layout_marginTop="32dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:background="#FFFFFFFF"
+        android:textColor="#000000"
         android:hint="Write your review here:"
-        app:layout_constraintBottom_toTopOf="@+id/submit_review_button"
+        android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/rating_container" />
 
     <Button
         android:id="@+id/submit_review_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="77dp"
-        android:layout_marginTop="26dp"
-        android:layout_marginEnd="78dp"
-        android:backgroundTint="#BFFFFFFF"
+        android:layout_marginTop="16dp"
+        android:backgroundTint="#FF6200EE"
         android:text="Submit Review"
+        android:textColor="#FFFFFF"
+        android:textSize="16sp"
+        android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/review_edit_text" />
@@ -82,9 +93,13 @@
         android:id="@+id/buttonBackToHike"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:backgroundTint="#BFFFFFFF"
+        android:layout_marginTop="16dp"
+        android:backgroundTint="#FF6200EE"
         android:text="Back"
+        android:textColor="#FFFFFF"
+        android:textSize="16sp"
+        android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/submit_review_button" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
