@@ -4,8 +4,10 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.AutoCompleteTextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
@@ -13,9 +15,6 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FieldValue;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -28,6 +27,9 @@ public class UserActivity extends AppCompatActivity {
     private FirebaseFirestore db;
     private ArrayList<String> friendsList = new ArrayList<>();
     private ArrayList<String> hikesList = new ArrayList<>();
+    private ArrayAdapter<String> hikeAdapter;
+    private AutoCompleteTextView autoCompleteHikeSearch;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,11 +38,41 @@ public class UserActivity extends AppCompatActivity {
 
         db = FirebaseFirestore.getInstance();
 
+        autoCompleteHikeSearch = findViewById(R.id.editTextSearchHike);
+        hikeAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, hikesList);
+        autoCompleteHikeSearch.setAdapter(hikeAdapter);
+        loadHikeSuggestions("");
+
+        autoCompleteHikeSearch.setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus) {
+                autoCompleteHikeSearch.showDropDown();
+            }
+        });
+
+        autoCompleteHikeSearch.addTextChangedListener(new android.text.TextWatcher() {
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                loadHikeSuggestions(s.toString());
+            }
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+
+            @Override
+            public void afterTextChanged(android.text.Editable s) { }
+        });
+
+        autoCompleteHikeSearch.setOnItemClickListener((parent, view, position, id) -> {
+            String selectedHike = hikeAdapter.getItem(position);
+            Toast.makeText(UserActivity.this, "Selected Hike: " + selectedHike, Toast.LENGTH_SHORT).show();
+            hikeQuery(selectedHike);
+        });
+
         Button buttonBackToHome = findViewById(R.id.buttonBackHome);
         buttonBackToHome.setOnClickListener(v -> {
             Intent intent = new Intent(UserActivity.this, MapsActivity.class);
             startActivity(intent);
-            finish(); // Optional: Close the current activity if needed
+            finish();
         });
 
         Button addFriend = findViewById(R.id.buttonAddFriend);
@@ -60,7 +92,7 @@ public class UserActivity extends AppCompatActivity {
         Button myFriendsButton = findViewById(R.id.buttonMyFriends);
         myFriendsButton.setOnClickListener(v -> fetchAndShowFriends());
 
-        Button searchButton = findViewById(R.id.buttonSearchHike);
+        Button searchButton = findViewById(R.id.search_button);
         searchButton.setOnClickListener(v -> {
             EditText searchInput = findViewById(R.id.editTextSearchHike);
             String searchQuery = searchInput.getText().toString().trim();
@@ -88,6 +120,39 @@ public class UserActivity extends AppCompatActivity {
             }
         });
     }
+
+    private void loadHikeSuggestions(String query) {
+        hikesList.clear();
+        hikesList.add("Griffith Observatory");
+        hikesList.add("Hollywood Sign");
+        hikesList.add("Skid Row");
+        hikesList.add("Sycamore Canyon Trailhead");
+        hikesList.add("Trail Canyon Falls");
+        hikeAdapter.notifyDataSetChanged();
+
+        /*db.collection("Hikes")
+                .orderBy("name")
+                .startAt(query)
+                .endAt(query + "\uf8ff")
+                .limit(10)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        hikesList.clear();
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            String hikeName = document.getString("name");
+                            if (hikeName != null) {
+                                hikesList.add(hikeName);
+                            }
+                        }
+                        hikeAdapter.notifyDataSetChanged(); // Update dropdown suggestions
+                        Log.d("UserActivity", "Hike suggestions: " + hikesList); // Log the fetched data
+                    } else {
+                        Toast.makeText(UserActivity.this, "Failed to load hike suggestions.", Toast.LENGTH_SHORT).show();
+                    }
+                });*/
+    }
+
 
     private void queryUserByEmail(String email) {
         // Get the current user's ID
@@ -185,36 +250,6 @@ public class UserActivity extends AppCompatActivity {
 
         builder.setPositiveButton("OK", (dialog, which) -> dialog.dismiss());
         builder.create().show();
-    }
-
-    private void searchForHikes(String searchQuery) {
-        hikesList.clear();
-
-        // Query the "Hikes" collection in Firestore
-        db.collection("Hikes")
-                .orderBy("name")
-                .startAt(searchQuery)
-                .endAt(searchQuery + "\uf8ff") // Matches hikes whose names start with the search term
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        for (DocumentSnapshot document : task.getResult()) {
-                            String hikeName = document.getString("name");
-                            if (hikeName != null) {
-                                hikesList.add(hikeName);
-                            }
-                        }
-                        if (!hikesList.isEmpty()) {
-                            showSearchResultsDialog();
-                        } else {
-                            Toast.makeText(getApplicationContext(), "No hikes found matching your search.", Toast.LENGTH_SHORT).show();
-                        }
-
-                    } else {
-                        Toast.makeText(getApplicationContext(), "Error searching for hikes.", Toast.LENGTH_SHORT).show();
-
-                    }
-                });
     }
 
     private void hikeQuery(String hike) {

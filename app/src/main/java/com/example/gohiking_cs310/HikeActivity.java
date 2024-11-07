@@ -64,6 +64,14 @@ public class HikeActivity extends AppCompatActivity {
             }
         });
 
+        Button reviewButton = findViewById(R.id.buttonReview);
+        reviewButton.setOnClickListener(v -> {
+            Intent intent2 = new Intent(HikeActivity.this, ReviewActivity.class);
+            assert hike != null;
+            intent2.putExtra("hikeId", hike.getId()); // Ensure hike.getId() is not null
+            startActivity(intent2);
+        });
+
     }
 
     public void showHikeInfo(Hike hike) {
