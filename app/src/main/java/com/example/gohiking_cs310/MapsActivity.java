@@ -56,6 +56,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Button groupButton = findViewById(R.id.button_group);
         Button loginButton = findViewById(R.id.button_login);
         Button signUpButton = findViewById(R.id.button_signup);
+        Button logout = findViewById(R.id.buttonLogOut);
 
 
         if (!isLoggedIn) {
@@ -65,6 +66,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             signUpButton.setVisibility(View.VISIBLE);
             profileButton.setVisibility(View.GONE);
             groupButton.setVisibility(View.GONE);
+            logout.setVisibility(View.GONE);
 
             loginButton.setOnClickListener(v -> {
                 Intent intent = new Intent(MapsActivity.this, Login.class);
@@ -82,6 +84,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             signUpButton.setVisibility(View.GONE);
             profileButton.setVisibility(View.VISIBLE);
             groupButton.setVisibility(View.VISIBLE);
+
+            logout.setOnClickListener(v -> {
+                // Log out Firebase Auth current user
+                FirebaseAuth.getInstance().signOut();
+
+                // Redirect to MapsActivity (or another activity, like LoginActivity, if you want to log them out completely)
+                Intent intent = new Intent(MapsActivity.this, MapsActivity.class);
+                startActivity(intent);
+
+                // Optionally, finish the current activity to remove it from the back stack
+                finish();
+            });
 
             profileButton.setOnClickListener(v -> {
                 Intent intent = new Intent(MapsActivity.this, UserActivity.class);
