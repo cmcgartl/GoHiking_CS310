@@ -29,6 +29,7 @@
             android:id="@+id/button_login"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:backgroundTint="#80FFFFFF"
             android:text="Login" />
 
         <!-- Logout Button -->
@@ -37,22 +38,25 @@
             android:id="@+id/buttonLogOut"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Log Out"
-            android:layout_marginStart="16dp" />
+            android:layout_marginStart="16dp"
+            android:backgroundTint="#80FFFFFF"
+            android:text="Log Out" />
 
         <Button
             android:id="@+id/button_signup"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Sign Up"
-            android:layout_marginStart="16dp" />
+            android:layout_marginStart="16dp"
+            android:backgroundTint="#80FFFFFF"
+            android:text="Sign Up" />
 
         <Button
             android:id="@+id/button_group"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Group Activity"
             android:layout_marginStart="16dp"
+            android:backgroundTint="#80FFFFFF"
+            android:text="Group Activity"
             android:visibility="gone" />
 
 
@@ -60,8 +64,9 @@
             android:id="@+id/button_profile"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Profile"
             android:layout_marginStart="16dp"
+            android:backgroundTint="#80FFFFFF"
+            android:text="Profile"
             android:visibility="gone" />
 
     </LinearLayout>

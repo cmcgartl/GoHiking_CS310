@@ -69,6 +69,18 @@ public class UserActivity extends AppCompatActivity {
             hikeQuery(selectedHike);
         });
 
+        Button logoutButton = findViewById(R.id.buttonLogOut);
+        logoutButton.setOnClickListener(v -> {
+            FirebaseAuth.getInstance().signOut(); // Log out the current user
+            Toast.makeText(UserActivity.this, "Logged out successfully.", Toast.LENGTH_SHORT).show();
+
+            // Redirect to MapsActivity (or another activity if preferred)
+            Intent intent = new Intent(UserActivity.this, MapsActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+            finish(); // Finish UserActivity to prevent returning to it on back press
+        });
+
         Button buttonBackToHome = findViewById(R.id.buttonBackHome);
         buttonBackToHome.setOnClickListener(v -> {
             Intent intent = new Intent(UserActivity.this, MapsActivity.class);
@@ -147,8 +159,10 @@ public class UserActivity extends AppCompatActivity {
         hikesList.clear();
         hikesList.add("Griffith Observatory");
         hikesList.add("Hollywood Sign");
+        hikesList.add("Rancho Palos Verdes Shoreline Preserve");
         hikesList.add("Skid Row");
         hikesList.add("Sycamore Canyon Trailhead");
+        hikesList.add("Temescal Canyon Falls");
         hikesList.add("Trail Canyon Falls");
         hikeAdapter.notifyDataSetChanged();
 
