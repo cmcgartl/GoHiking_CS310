@@ -23,7 +23,6 @@ import com.google.firebase.firestore.DocumentSnapshot;
 
 
 import java.util.ArrayList;
-import java.util.Map;
 
 public class UserActivity extends AppCompatActivity {
     private FirebaseFirestore db;
