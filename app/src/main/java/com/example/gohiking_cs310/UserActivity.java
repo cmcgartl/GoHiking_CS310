@@ -29,6 +29,7 @@ public class UserActivity extends AppCompatActivity {
     private ArrayList<String> hikesList = new ArrayList<>();
     private ArrayAdapter<String> hikeAdapter;
     private AutoCompleteTextView autoCompleteHikeSearch;
+    private Boolean pub;
 
 
     @Override
@@ -74,6 +75,27 @@ public class UserActivity extends AppCompatActivity {
             startActivity(intent);
             finish();
         });
+
+        Button privacy = findViewById(R.id.buttonPrivacy);
+        privacy.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                togglePrivacy(privacy);
+            }
+        });
+        String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        db.collection("Users").document(currentUserId).get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        pub  = (Boolean)documentSnapshot.get("Public");
+                        if(pub){
+                            privacy.setText("Privacy: Public \n Click to Toggle");
+                        }
+                        else{
+                            privacy.setText("Privacy: Private \n Click to Toggle");
+                        }
+                    }
+                });
 
         Button addFriend = findViewById(R.id.buttonAddFriend);
         addFriend.setOnClickListener(new View.OnClickListener() {
@@ -352,4 +374,27 @@ public class UserActivity extends AppCompatActivity {
                         Toast.makeText(UserActivity.this, "Failed to fetch custom hikes.", Toast.LENGTH_SHORT).show()
                 );
     }
+
+    private void togglePrivacy(Button button){
+        String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        db.collection("Users").document(currentUserId).get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        pub  = (Boolean)documentSnapshot.get("Public");
+                        if(pub){
+                            pub = false;
+                            db.collection("Users").document(currentUserId)
+                                    .update("Public", pub);
+                            button.setText("Privacy: Private \n Click to Toggle");
+                        }
+                        else{
+                            pub = true;
+                            db.collection("Users").document(currentUserId)
+                                    .update("Public", pub);
+                            button.setText("Privacy: Public \n Click to Toggle");
+                        }
+                    }
+                });
+    }
+
 }
