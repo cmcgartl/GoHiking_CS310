@@ -6,12 +6,14 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -21,6 +23,8 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.DocumentSnapshot;
 
+
+import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -57,6 +61,30 @@ public class UserActivity extends AppCompatActivity {
                 }
             }
         });
+
+        TextView tv = findViewById(R.id.username);
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        if (user != null) {
+            String email = user.getEmail();
+
+            // Access the Firestore document for the current user
+            db.collection("Users").document(user.getUid()).get()
+                    .addOnSuccessListener(documentSnapshot -> {
+                        if (documentSnapshot.exists()) {
+                            String username = documentSnapshot.getString("username"); // Retrieve the "username" field
+                            tv.setText("Basic User Information: \n Full Name: " + username + "\nEmail: " + email);
+                        } else {
+                            tv.setText("No username found for this user");
+                        }
+                    })
+                    .addOnFailureListener(e -> {
+                        tv.setText("Failed to retrieve user information");
+                    });
+        } else {
+            tv.setText("No user is currently logged in");
+        }
 
         Button myFriendsButton = findViewById(R.id.buttonMyFriends);
         myFriendsButton.setOnClickListener(v -> fetchAndShowFriends());
@@ -180,7 +208,7 @@ public class UserActivity extends AppCompatActivity {
             db.collection("Users").document(friendId).get()
                     .addOnSuccessListener(documentSnapshot -> {
                         if (documentSnapshot.exists()) {
-                            String friendEmail = documentSnapshot.getString("email");
+                            String friendEmail = documentSnapshot.getString("username");
                             friendsList.add(friendEmail);
                         }
                         // Increment the counter after each success

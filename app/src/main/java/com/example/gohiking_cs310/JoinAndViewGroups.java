@@ -94,7 +94,7 @@ public class JoinAndViewGroups extends AppCompatActivity implements GroupActivit
                                 // Fetch each participant's email
                                 db.collection("Users").document(participant).get()
                                         .addOnSuccessListener(userSnapshot -> {
-                                            String email = userSnapshot.getString("email");
+                                            String email = userSnapshot.getString("username");
                                             if (email != null) {
                                                 participantsText.append(email).append("\n");
                                             } else {
@@ -260,14 +260,14 @@ public class JoinAndViewGroups extends AppCompatActivity implements GroupActivit
                         if (friends != null && !friends.isEmpty()) {
                             // Create a list to store friend emails or IDs for display
                             List<String> friendNames = new ArrayList<>();
-
+                            List<String> friendIDs = new ArrayList<>();
                             // Fetch emails or names of friends to display in the dialog
                             AtomicInteger badFriends = new AtomicInteger();
                             for (String friend : friends) {
                                 //Toast.makeText(this, friend, Toast.LENGTH_SHORT).show();
                                 db.collection("Users").document(friend).get()
                                         .addOnSuccessListener(friendSnapshot -> {
-                                            String friendEmail = friendSnapshot.getString("email");
+                                            String friendEmail = friendSnapshot.getString("username");
 
                                             if (friendEmail != null) {
                                                 friendNames.add(friendEmail);
@@ -302,7 +302,7 @@ public class JoinAndViewGroups extends AppCompatActivity implements GroupActivit
                     String selectedFriendEmail = friendNames.get(which);
 
                     // Query Firestore to find the user document with the selected email
-                    db.collection("Users").whereEqualTo("email", selectedFriendEmail).get()
+                    db.collection("Users").whereEqualTo("username", selectedFriendEmail).get()
                             .addOnSuccessListener(querySnapshot -> {
                                 if (!querySnapshot.isEmpty()) {
                                     String friendID = querySnapshot.getDocuments().get(0).getId();

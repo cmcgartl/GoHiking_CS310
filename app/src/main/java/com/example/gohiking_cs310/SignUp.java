@@ -2,6 +2,7 @@ package com.example.gohiking_cs310;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -16,6 +17,10 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class SignUp extends AppCompatActivity {
     private EditText editTextUsername, editTextPassword;
@@ -50,10 +55,49 @@ public class SignUp extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 String email = editTextUsername.getText().toString();
+                EditText editfullname = findViewById(R.id.username);
+                String username = editfullname.getText().toString();
                 String password = editTextPassword.getText().toString();
 
-                if (!email.isEmpty() && !password.isEmpty()) {
-                    registerUser(email, password);
+                if (!email.isEmpty() && !password.isEmpty() && !username.isEmpty()) {
+                    registerUser(email, password, username);
+
+                    /*FirebaseAuth.getInstance().addAuthStateListener(firebaseAuth -> {
+                        FirebaseUser user = firebaseAuth.getCurrentUser();
+                        if (user != null && user.isEmailVerified()) {
+                            FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+                            // Set a default username if empty
+                            String finalUsername = username.isEmpty() ? "You have not set a username yet." : username;
+
+                            db.collection("Users")
+                                    .whereEqualTo("email", email)
+                                    .get()
+                                    .addOnSuccessListener(queryDocumentSnapshots -> {
+                                        if (!queryDocumentSnapshots.isEmpty()) {
+                                            String userId = queryDocumentSnapshots.getDocuments().get(0).getId();
+                                            Map<String, Object> userMap = new HashMap<>();
+                                            userMap.put("username", finalUsername);
+
+                                            db.collection("Users").document(userId)
+                                                    .set(userMap, SetOptions.merge())
+                                                    .addOnSuccessListener(aVoid -> {
+                                                        Log.d("Firestore", "Username added to Firestore");
+                                                    })
+                                                    .addOnFailureListener(e -> {
+                                                        Log.d("Firestore", "Failed to add username to Firestore", e);
+                                                    });
+                                        } else {
+                                            Log.d("Firestore", "No document found with the provided email");
+                                        }
+                                    })
+                                    .addOnFailureListener(e -> {
+                                        Log.d("Firestore", "Error fetching document", e);
+                                    });
+
+                        }
+                    });*/
+
                 } else {
                     Toast.makeText(SignUp.this, "Please enter email and password", Toast.LENGTH_SHORT).show();
                 }
@@ -61,7 +105,7 @@ public class SignUp extends AppCompatActivity {
         });
     }
 
-    private void registerUser(String email, String password) {
+    private void registerUser(String email, String password, String username) {
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
@@ -70,7 +114,8 @@ public class SignUp extends AppCompatActivity {
                             // Sign-up successful, navigate to MapsActivity
                             FirebaseUser user = mAuth.getCurrentUser();
                             String userID = mAuth.getCurrentUser().getUid();
-                            User newUser = new User(userID, email);
+                            User newUser = new User(userID, email, username);
+                            //newUser.username = username;
                             FirebaseFirestore db = FirebaseFirestore.getInstance();
                             db.collection("Users").document(userID).set(newUser);
                             Toast.makeText(SignUp.this, "Registration successful!", Toast.LENGTH_SHORT).show();

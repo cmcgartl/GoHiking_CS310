@@ -9,6 +9,7 @@ public class User {
     private List<String> friends;
     private List<String> customHikes;
     private List<String> groupActivities;
+    public String username;
 
     // Constructor
     public User(String userId, String email) {
@@ -17,6 +18,15 @@ public class User {
         this.friends = new ArrayList<>();
         this.customHikes = new ArrayList<>();
         this.groupActivities = new ArrayList<>();
+    }
+
+    public User(String userId, String email, String username) {
+        this.userId = userId;
+        this.email = email;
+        this.friends = new ArrayList<>();
+        this.customHikes = new ArrayList<>();
+        this.groupActivities = new ArrayList<>();
+        this.username = username;
     }
 
 
