@@ -23,6 +23,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 
 
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class UserActivity extends AppCompatActivity {
     private FirebaseFirestore db;
@@ -82,6 +83,19 @@ public class UserActivity extends AppCompatActivity {
 
         Button myFriendsButton = findViewById(R.id.buttonMyFriends);
         myFriendsButton.setOnClickListener(v -> fetchAndShowFriends());
+
+        Button logout = findViewById(R.id.buttonLogOut);
+        logout.setOnClickListener(v -> {
+            // Log out Firebase Auth current user
+            FirebaseAuth.getInstance().signOut();
+
+            // Redirect to MapsActivity (or another activity, like LoginActivity, if you want to log them out completely)
+            Intent intent = new Intent(UserActivity.this, MapsActivity.class);
+            startActivity(intent);
+
+            // Optionally, finish the current activity to remove it from the back stack
+            finish();
+        });
 
         Button searchButton = findViewById(R.id.buttonSearchHike);
         searchButton.setOnClickListener(v -> {
@@ -160,8 +174,9 @@ public class UserActivity extends AppCompatActivity {
     }
 
     private void fetchAndShowFriends() {
+        Log.d("func", "showFriendsDialog");
         String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-
+        Log.d("user", currentUserId);
         db.collection("Users").document(currentUserId).get()
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists()) {
@@ -179,25 +194,36 @@ public class UserActivity extends AppCompatActivity {
     }
 
     private void fetchFriendDetails(ArrayList<String> friendIds) {
+        Log.d("func", "fetchFriendDetails");
         friendsList.clear();
+        // A counter to track completed fetch operations
+        AtomicInteger counter = new AtomicInteger(0);
+
         for (String friendId : friendIds) {
             db.collection("Users").document(friendId).get()
                     .addOnSuccessListener(documentSnapshot -> {
                         if (documentSnapshot.exists()) {
                             String friendEmail = documentSnapshot.getString("email");
                             friendsList.add(friendEmail);
-                            if (friendsList.size() == friendIds.size()) {
-                                showFriendsDialog();
-                            }
+                        }
+                        // Increment the counter after each success
+                        if (counter.incrementAndGet() == friendIds.size()) {
+                            // Show dialog once all friend details are fetched
+                            showFriendsDialog();
                         }
                     })
                     .addOnFailureListener(e -> {
                         Toast.makeText(UserActivity.this, "Failed to fetch friend details.", Toast.LENGTH_SHORT).show();
+                        // Also increment the counter in case of failure
+                        if (counter.incrementAndGet() == friendIds.size()) {
+                            showFriendsDialog();
+                        }
                     });
         }
     }
 
     private void showFriendsDialog() {
+        Log.d("func", "showFriendsDialog");
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Your Friends");
 
