@@ -43,8 +43,6 @@ public class Hike implements Serializable {
         this.wifi = wifi;
     }
 
-    // Getters and setters with @PropertyName annotations where needed
-
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
 

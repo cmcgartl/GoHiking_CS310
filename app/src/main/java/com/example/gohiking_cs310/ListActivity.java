@@ -2,7 +2,8 @@ package com.example.gohiking_cs310;
 
 import java.util.ArrayList;
 
-public class ListActivity {
+public class
+ListActivity {
     private String listID;
     private String listName;
     private boolean visibility;

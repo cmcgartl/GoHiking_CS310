@@ -33,13 +33,11 @@ public class GroupActivityAdapter extends RecyclerView.Adapter<GroupActivityAdap
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         GroupActivity groupActivity = groupActivities.get(position);
 
-        // Bind the data to views
         holder.titleTextView.setText(groupActivity.getTitle());
         holder.locationTextView.setText("Location: " + groupActivity.getLocation());
         holder.dateTextView.setText("Date: " + groupActivity.getTime().toString());
         holder.maxParticipantsTextView.setText("Max Participants: " + groupActivity.getMaxParticipants());
 
-        // Set click listeners for buttons
         holder.joinButton.setOnClickListener(v -> clickListener.onJoinClick(groupActivity));
         holder.leaveButton.setOnClickListener(v -> clickListener.onLeaveClick(groupActivity));
         holder.seeMembersButton.setOnClickListener(v -> clickListener.onSeeMembersClick(groupActivity));

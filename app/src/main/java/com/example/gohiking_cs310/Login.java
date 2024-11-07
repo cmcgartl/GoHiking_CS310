@@ -26,15 +26,10 @@ public class Login extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        // Initialize FirebaseAuth
         mAuth = FirebaseAuth.getInstance();
-
-        // Initialize views
         editTextUsername = findViewById(R.id.editTextUsername);
         editTextPassword = findViewById(R.id.editTextPassword);
         buttonLogin = findViewById(R.id.buttonLogin);
-
-        // Home button to go back
         Button goHomeButton = findViewById(R.id.button_go_home);
         goHomeButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -44,14 +39,11 @@ public class Login extends AppCompatActivity {
             }
         });
 
-        // Set up login button click listener
         buttonLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String email = editTextUsername.getText().toString();
                 String password = editTextPassword.getText().toString();
-
-                // Check if fields are filled
                 if (!email.isEmpty() && !password.isEmpty()) {
                     loginUser(email, password);
                 } else {
@@ -70,7 +62,6 @@ public class Login extends AppCompatActivity {
                             // Login success, navigate to MapsActivity
                             FirebaseUser user = mAuth.getCurrentUser();
                             Toast.makeText(Login.this, "Login successful!", Toast.LENGTH_SHORT).show();
-                            // Go to MapsActivity
                             Intent intent = new Intent(Login.this, UserActivity.class);
                             startActivity(intent);
                             finish();

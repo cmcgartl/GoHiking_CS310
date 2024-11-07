@@ -37,13 +37,11 @@ public class HikeActivity extends AppCompatActivity {
         } else {
             Log.e("HikeActivity", "Hike object is null!");
         }
-
         Button showDetails = findViewById(R.id.buttonShowDetails);
         showDetails.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 showHikeInfo(hike);
-
             }
         });
 

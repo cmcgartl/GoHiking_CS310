@@ -32,10 +32,7 @@ public class SignUp extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_signup);
 
-        // Initialize Firebase Auth
         mAuth = FirebaseAuth.getInstance();
-
-        // Initialize views
         editTextUsername = findViewById(R.id.editTextUsername);
         editTextPassword = findViewById(R.id.editTextPassword);
         buttonSignUp = findViewById(R.id.buttonSignUp);
@@ -62,42 +59,6 @@ public class SignUp extends AppCompatActivity {
                 if (!email.isEmpty() && !password.isEmpty() && !username.isEmpty()) {
                     registerUser(email, password, username);
 
-                    /*FirebaseAuth.getInstance().addAuthStateListener(firebaseAuth -> {
-                        FirebaseUser user = firebaseAuth.getCurrentUser();
-                        if (user != null && user.isEmailVerified()) {
-                            FirebaseFirestore db = FirebaseFirestore.getInstance();
-
-                            // Set a default username if empty
-                            String finalUsername = username.isEmpty() ? "You have not set a username yet." : username;
-
-                            db.collection("Users")
-                                    .whereEqualTo("email", email)
-                                    .get()
-                                    .addOnSuccessListener(queryDocumentSnapshots -> {
-                                        if (!queryDocumentSnapshots.isEmpty()) {
-                                            String userId = queryDocumentSnapshots.getDocuments().get(0).getId();
-                                            Map<String, Object> userMap = new HashMap<>();
-                                            userMap.put("username", finalUsername);
-
-                                            db.collection("Users").document(userId)
-                                                    .set(userMap, SetOptions.merge())
-                                                    .addOnSuccessListener(aVoid -> {
-                                                        Log.d("Firestore", "Username added to Firestore");
-                                                    })
-                                                    .addOnFailureListener(e -> {
-                                                        Log.d("Firestore", "Failed to add username to Firestore", e);
-                                                    });
-                                        } else {
-                                            Log.d("Firestore", "No document found with the provided email");
-                                        }
-                                    })
-                                    .addOnFailureListener(e -> {
-                                        Log.d("Firestore", "Error fetching document", e);
-                                    });
-
-                        }
-                    });*/
-
                 } else {
                     Toast.makeText(SignUp.this, "Please enter email and password", Toast.LENGTH_SHORT).show();
                 }
@@ -121,9 +82,8 @@ public class SignUp extends AppCompatActivity {
                             Toast.makeText(SignUp.this, "Registration successful!", Toast.LENGTH_SHORT).show();
                             Intent intent = new Intent(SignUp.this, MapsActivity.class);
                             startActivity(intent);
-                            finish(); // Finish signup activity
+                            finish();
                         } else {
-                            // If sign-up fails, display a message to the user.
                             Toast.makeText(SignUp.this, "Authentication failed. " + task.getException().getMessage(),
                                     Toast.LENGTH_SHORT).show();
                         }

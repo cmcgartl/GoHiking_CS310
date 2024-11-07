@@ -42,11 +42,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         binding = ActivityMapsBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        // Initialize Firestore and hikes collection
+        // Initialize Firebase
         db = FirebaseFirestore.getInstance();
         hikesCollection = db.collection("Hikes");
 
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
+        //get SupportMapFragment, notified when map is ready.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
@@ -58,10 +58,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Button signUpButton = findViewById(R.id.button_signup);
         Button logout = findViewById(R.id.buttonLogOut);
 
-
         if (!isLoggedIn) {
-
-            // Initialize buttons and set click listeners
             loginButton.setVisibility(View.VISIBLE);
             signUpButton.setVisibility(View.VISIBLE);
             profileButton.setVisibility(View.GONE);
@@ -79,21 +76,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             });
         }
         else{
-            // Initialize buttons and set click listeners
             loginButton.setVisibility(View.GONE);
             signUpButton.setVisibility(View.GONE);
             profileButton.setVisibility(View.VISIBLE);
             groupButton.setVisibility(View.VISIBLE);
 
             logout.setOnClickListener(v -> {
-                // Log out Firebase Auth current user
                 FirebaseAuth.getInstance().signOut();
 
-                // Redirect to MapsActivity (or another activity, like LoginActivity, if you want to log them out completely)
                 Intent intent = new Intent(MapsActivity.this, MapsActivity.class);
                 startActivity(intent);
-
-                // Optionally, finish the current activity to remove it from the back stack
                 finish();
             });
 
@@ -113,11 +105,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         mMap.getUiSettings().setZoomControlsEnabled(true);
-        // Default location (e.g., Los Angeles) and zoom level
         LatLng losAngeles = new LatLng(34.052235, -118.243683);
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(losAngeles, 10));
-
-        // Fetch hikes from Firestore and add markers
         getHikesAndAddMarkers();
     }
 
@@ -128,24 +117,21 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             Hike hike = document.toObject(Hike.class);
 
-                            // Extract latitude and longitude for each hike
                             LatLng location = new LatLng(hike.getLat(), hike.getLng());
 
-                            // Add a marker to the map and store it in the map
+
                             Marker marker = mMap.addMarker(new MarkerOptions()
                                     .position(location)
                                     .title(hike.getName())
                                     .snippet("Tap for details"));
 
-                            // Map the marker to its corresponding hike
                             markerHikeMap.put(marker, hike);
                             HikeIDMap.put(hike.getId(), hike);
                         }
 
-                        // Set a listener for marker clicks to show detailed info
                         mMap.setOnMarkerClickListener(marker -> {
                             showHikeDetails(this, markerHikeMap.get(marker));
-                            return false; // Return false to also show the default info window
+                            return false;
                         });
 
                         Log.d("MapsActivity", "Markers added for hikes: " + task.getResult().size());
@@ -188,7 +174,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 "Water Fountains: " + (hike.isWaterFountains() ? "Yes" : "No") + "\n" +
                 "WiFi: " + (hike.isWifi() ? "Yes" : "No") + "\n");
 
-        // Create and show an AlertDialog with the hike details
         new AlertDialog.Builder(context)
                 .setTitle(hike.getName())
                 .setMessage(hikeDetails.toString())

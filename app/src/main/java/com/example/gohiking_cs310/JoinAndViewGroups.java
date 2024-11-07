@@ -62,7 +62,7 @@ public class JoinAndViewGroups extends AppCompatActivity implements GroupActivit
         groupActivityAdapter = new GroupActivityAdapter(groupActivities, this);
         recyclerViewGroups.setAdapter(groupActivityAdapter);
 
-        // Fetch and display group activities from Firestore
+
         fetchGroupActivities();
 
         gohome.setOnClickListener(v -> {
@@ -76,22 +76,17 @@ public class JoinAndViewGroups extends AppCompatActivity implements GroupActivit
     @Override
     public void onSeeMembersClick(GroupActivity groupActivity) {
         String group_id = groupActivity.getActivityID();
-
-        // Retrieve the participants array from Firestore
         db.collection("group-activities").document(group_id).get()
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists()) {
                         List<String> participants = (List<String>) documentSnapshot.get("participants");
 
                         if (participants != null && !participants.isEmpty()) {
-                            // Initialize a StringBuilder to collect participant emails
                             StringBuilder participantsText = new StringBuilder();
 
-                            // Counter to track when all participant emails have been retrieved
                             final int[] remainingParticipants = {participants.size()};
 
                             for (String participant : participants) {
-                                // Fetch each participant's email
                                 db.collection("Users").document(participant).get()
                                         .addOnSuccessListener(userSnapshot -> {
                                             String email = userSnapshot.getString("username");
@@ -117,7 +112,6 @@ public class JoinAndViewGroups extends AppCompatActivity implements GroupActivit
                                         });
                             }
                         } else {
-                            // No participants found
                             Toast.makeText(this, "No members in this group.", Toast.LENGTH_SHORT).show();
                         }
                     } else {
@@ -133,8 +127,6 @@ public class JoinAndViewGroups extends AppCompatActivity implements GroupActivit
     public void onJoinClick(GroupActivity groupActivity) {
         String user_id = Objects.requireNonNull(mAuth.getCurrentUser()).getUid();
         String group_id = groupActivity.getActivityID();
-
-        // Fetch the latest state of the group to ensure participants list is up-to-date
         db.collection("group-activities").document(group_id).get()
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists()) {
@@ -148,7 +140,6 @@ public class JoinAndViewGroups extends AppCompatActivity implements GroupActivit
                             return;
                         }
 
-                        // If no errors, proceed with joining
                         db.runTransaction((Transaction.Function<Void>) transaction -> {
                             DocumentReference groupRef = db.collection("group-activities").document(group_id);
                             DocumentReference userRef = db.collection("Users").document(user_id);
@@ -167,60 +158,11 @@ public class JoinAndViewGroups extends AppCompatActivity implements GroupActivit
                 );
     }
 
-   /* @Override
-    public void onJoinClick(GroupActivity groupActivity) {
-        String currentUserId = mAuth.getCurrentUser().getUid();
-        String groupId = groupActivity.getActivityID();
-        //
-        //Toast.makeText(this, "steo 1.", Toast.LENGTH_SHORT).show();
-        // Check if the user is already in the group
-        db.collection("GroupActivities").document(groupId).get()
-                .addOnSuccessListener(documentSnapshot -> {
-                    //Toast.makeText(this, "steo 2222.", Toast.LENGTH_SHORT).show();
-                    List<String> participants = (List<String>) documentSnapshot.get("participants");
-                    if (participants == null) {
-                        //Toast.makeText(this, "NULL 2222.", Toast.LENGTH_SHORT).show();
-                    }
-                    if (participants != null && participants.contains(currentUserId)) {
-                        Toast.makeText(this, "ERROR: YOU'RE ALREADY A MEMBER OF THIS GROUP.", Toast.LENGTH_SHORT).show();
-                    } else {
-                        // Add user to group's participants array
-                        if (participants == null) {
-                           // Log.d("GroupActivity", "Participants is null");
-                        }
-                        db.collection("GroupActivities").document(groupId)
-                                .update("participants", FieldValue.arrayUnion(currentUserId))
-                                .addOnSuccessListener(aVoid -> {
-                                    //Toast.makeText(this, "steo 3.", Toast.LENGTH_SHORT).show();
-                                })
-
-                                .addOnSuccessListener(aVoid -> {
-                                    // Add group to user's groupActivities array
-                                    db.collection("Users").document(currentUserId)
-                                            .update("groupActivities", FieldValue.arrayUnion(groupId))
-                                            .addOnSuccessListener(aVoid2 -> {
-                                                Toast.makeText(this, "SUCCESSFULLY JOINED GROUP", Toast.LENGTH_SHORT).show();
-                                            })
-                                            .addOnFailureListener(e -> {
-                                                // Toast.makeText(this, "Failed to add group to user's activities.", Toast.LENGTH_SHORT).show();
-                                            });
-                                })
-                                .addOnFailureListener(e -> {
-                                    //Toast.makeText(this, "Failed to add user to group.", Toast.LENGTH_SHORT).show();
-                                });
-                    }
-                })
-                .addOnFailureListener(e -> {
-                    //Toast.makeText(this, "Error checking group membership.", Toast.LENGTH_SHORT).show();
-                });
-    }*/
 
     @Override
     public void onLeaveClick(GroupActivity groupActivity) {
         String user_id = Objects.requireNonNull(mAuth.getCurrentUser()).getUid();
         String group_id = groupActivity.getActivityID();
-
-        // Fetch the latest state of the group to ensure participants list is up-to-date
         db.collection("group-activities").document(group_id).get()
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists()) {
@@ -230,7 +172,6 @@ public class JoinAndViewGroups extends AppCompatActivity implements GroupActivit
                             return;
                         }
 
-                        // If no errors, proceed with joining
                         db.runTransaction((Transaction.Function<Void>) transaction -> {
                             DocumentReference groupRef = db.collection("group-activities").document(group_id);
                             DocumentReference userRef = db.collection("Users").document(user_id);
@@ -258,21 +199,15 @@ public class JoinAndViewGroups extends AppCompatActivity implements GroupActivit
                     if (documentSnapshot.exists()) {
                         List<String> friends = (List<String>) documentSnapshot.get("friends");
                         if (friends != null && !friends.isEmpty()) {
-                            // Create a list to store friend emails or IDs for display
                             List<String> friendNames = new ArrayList<>();
                             List<String> friendIDs = new ArrayList<>();
-                            // Fetch emails or names of friends to display in the dialog
                             AtomicInteger badFriends = new AtomicInteger();
                             for (String friend : friends) {
-                                //Toast.makeText(this, friend, Toast.LENGTH_SHORT).show();
                                 db.collection("Users").document(friend).get()
                                         .addOnSuccessListener(friendSnapshot -> {
                                             String friendEmail = friendSnapshot.getString("username");
-
                                             if (friendEmail != null) {
                                                 friendNames.add(friendEmail);
-                                                //Toast.makeText(this, friendEmail, Toast.LENGTH_SHORT).show();
-                                                // Once all friends are added to the list, show the dialog
                                                 if (friendNames.size() == friends.size() - badFriends.get()) {
                                                     showFriendsDialog(friendNames, groupActivity);
                                                 }
@@ -301,7 +236,6 @@ public class JoinAndViewGroups extends AppCompatActivity implements GroupActivit
                 .setItems(friendArray, (dialog, which) -> {
                     String selectedFriendEmail = friendNames.get(which);
 
-                    // Query Firestore to find the user document with the selected email
                     db.collection("Users").whereEqualTo("username", selectedFriendEmail).get()
                             .addOnSuccessListener(querySnapshot -> {
                                 if (!querySnapshot.isEmpty()) {
@@ -310,7 +244,6 @@ public class JoinAndViewGroups extends AppCompatActivity implements GroupActivit
                                     DocumentReference groupRef = db.collection("group-activities").document(groupActivity.getActivityID());
                                     DocumentReference friendRef = db.collection("Users").document(friendID);
 
-                                    // Check if friend is already in the group and if there's capacity
                                     groupRef.get().addOnSuccessListener(groupSnapshot -> {
                                         if (groupSnapshot.exists()) {
                                             List<String> participants = (List<String>) groupSnapshot.get("participants");
@@ -321,14 +254,12 @@ public class JoinAndViewGroups extends AppCompatActivity implements GroupActivit
                                             } else if (participants != null && maxParticipants != null && participants.size() >= maxParticipants) {
                                                 Toast.makeText(this, "Group is at maximum capacity.", Toast.LENGTH_SHORT).show();
                                             } else {
-                                                // Check if the friend already has this group activity in their list
                                                 friendRef.get().addOnSuccessListener(friendSnapshot -> {
                                                     List<String> friendGroupActivities = (List<String>) friendSnapshot.get("groupActivities");
 
                                                     if (friendGroupActivities != null && friendGroupActivities.contains(groupActivity.getActivityID())) {
                                                         Toast.makeText(this, "Friend is already participating in this activity.", Toast.LENGTH_SHORT).show();
                                                     } else {
-                                                        // Add friend to group and group to friend's groupActivities list in a transaction
                                                         db.runTransaction((Transaction.Function<Void>) transaction -> {
                                                             transaction.update(groupRef, "participants", FieldValue.arrayUnion(friendID));
                                                             transaction.update(friendRef, "groupActivities", FieldValue.arrayUnion(groupActivity.getActivityID()));
@@ -365,12 +296,12 @@ public class JoinAndViewGroups extends AppCompatActivity implements GroupActivit
         db.collection("group-activities").get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        groupActivities.clear(); // Clear the list before adding items
+                        groupActivities.clear();
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             GroupActivity groupActivity = document.toObject(GroupActivity.class);
                             groupActivities.add(groupActivity);
                         }
-                        groupActivityAdapter.notifyDataSetChanged(); // Refresh the RecyclerView
+                        groupActivityAdapter.notifyDataSetChanged();
                     } else {
                         Toast.makeText(this, "Failed to fetch group activities.", Toast.LENGTH_SHORT).show();
                     }
@@ -378,27 +309,23 @@ public class JoinAndViewGroups extends AppCompatActivity implements GroupActivit
     }
 
     private void showCreateGroupDialog() {
-        // Inflate the custom dialog layout
         View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_create_group, null);
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setView(dialogView);
 
-        // Find input fields in the dialog
         EditText titleInput = dialogView.findViewById(R.id.editTextTitle);
         EditText locationInput = dialogView.findViewById(R.id.editTextLocation);
         NumberPicker maxParticipantsPicker = dialogView.findViewById(R.id.numberPickerMaxParticipants);
         Button buttonPickDate = dialogView.findViewById(R.id.buttonPickDate);
         Button buttonPickTime = dialogView.findViewById(R.id.buttonPickTime);
 
-        // Configure the NumberPicker for max participants
         maxParticipantsPicker.setMinValue(1);
         maxParticipantsPicker.setMaxValue(50);
         maxParticipantsPicker.setWrapSelectorWheel(true);
 
-        // Initialize date and time to the current date/time
         final Calendar calendar = Calendar.getInstance();
 
-        // Date picker dialog
+
         buttonPickDate.setOnClickListener(v -> {
             new DatePickerDialog(this, (view, year, month, dayOfMonth) -> {
                 calendar.set(Calendar.YEAR, year);
@@ -407,7 +334,7 @@ public class JoinAndViewGroups extends AppCompatActivity implements GroupActivit
             }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH)).show();
         });
 
-        // Time picker dialog
+
         buttonPickTime.setOnClickListener(v -> {
             new TimePickerDialog(this, (view, hourOfDay, minute) -> {
                 calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
@@ -415,7 +342,7 @@ public class JoinAndViewGroups extends AppCompatActivity implements GroupActivit
             }, calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), true).show();
         });
 
-        // Set up dialog buttons
+
         builder.setPositiveButton("Create", (dialog, which) -> {
             String title = titleInput.getText().toString().trim();
             String location = locationInput.getText().toString().trim();
@@ -436,13 +363,12 @@ public class JoinAndViewGroups extends AppCompatActivity implements GroupActivit
     }
 
     private void createGroupActivityInFirestore(String title, String location, int maxParticipants, Date dateTime) {
-        // Generate a unique ID for the activity
+
         String activityID = UUID.randomUUID().toString();
 
-        // Create a GroupActivity instance
+
         GroupActivity groupActivity = new GroupActivity(activityID, title, location, dateTime, maxParticipants);
 
-        // Create a Map to represent the fields in Firestore
         Map<String, Object> activityMap = new HashMap<>();
         activityMap.put("activityID", groupActivity.getActivityID());
         activityMap.put("title", groupActivity.getTitle());
@@ -452,7 +378,7 @@ public class JoinAndViewGroups extends AppCompatActivity implements GroupActivit
         activityMap.put("participants", groupActivity.getParticipants());
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        // Add the document to Firestore
+
         db.collection("group-activities")
                 .document(activityID)
                 .set(activityMap)

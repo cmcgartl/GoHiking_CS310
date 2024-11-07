@@ -22,17 +22,6 @@ public class GroupActivity {
         this.participants = new ArrayList<String>();
     }
 
-    /*public void joinActivity(UserActivity user) {
-        if (participants.size() < maxParticipants) {
-            participants.add(user);
-        }
-    }
-
-    public void leaveActivity(UserActivity user) {
-        participants.remove(user);
-    }*/
-
-    // Getters and setters (if needed)
     public String getActivityID() { return activityID; }
     public String getTitle() { return title; }
     public String getLocation() { return location; }

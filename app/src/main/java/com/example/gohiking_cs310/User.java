@@ -10,6 +10,7 @@ public class User {
     private List<String> customHikes;
     private List<String> groupActivities;
     public String username;
+    public Boolean Public;
 
     // Constructor
     public User(String userId, String email) {
@@ -18,6 +19,7 @@ public class User {
         this.friends = new ArrayList<>();
         this.customHikes = new ArrayList<>();
         this.groupActivities = new ArrayList<>();
+        this.Public = true;
     }
 
     public User(String userId, String email, String username) {
@@ -27,6 +29,7 @@ public class User {
         this.customHikes = new ArrayList<>();
         this.groupActivities = new ArrayList<>();
         this.username = username;
+        this.Public = true;
     }
 
 

@@ -3,6 +3,7 @@ package com.example.gohiking_cs310;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.Pair;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -26,13 +27,15 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import org.w3c.dom.Text;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class UserActivity extends AppCompatActivity {
     private FirebaseFirestore db;
-    private ArrayList<String> friendsList = new ArrayList<>();
+   // private ArrayList<String> friendsList = new ArrayList<>();
     private ArrayList<String> hikesList = new ArrayList<>();
     private ArrayAdapter<String> hikeAdapter;
     private AutoCompleteTextView autoCompleteHikeSearch;
+    private List<Pair<String, String>> friendsList = new ArrayList<>();
     private Boolean pub;
 
 
@@ -78,11 +81,11 @@ public class UserActivity extends AppCompatActivity {
             FirebaseAuth.getInstance().signOut(); // Log out the current user
             Toast.makeText(UserActivity.this, "Logged out successfully.", Toast.LENGTH_SHORT).show();
 
-            // Redirect to MapsActivity (or another activity if preferred)
+            // go back to MapsActivity
             Intent intent = new Intent(UserActivity.this, MapsActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(intent);
-            finish(); // Finish UserActivity to prevent returning to it on back press
+            finish();
         });
 
         Button buttonBackToHome = findViewById(R.id.buttonBackHome);
@@ -134,7 +137,7 @@ public class UserActivity extends AppCompatActivity {
         if (user != null) {
             String email = user.getEmail();
 
-            // Access the Firestore document for the current user
+            // Access firebase for current user
             db.collection("Users").document(user.getUid()).get()
                     .addOnSuccessListener(documentSnapshot -> {
                         if (documentSnapshot.exists()) {
@@ -178,7 +181,8 @@ public class UserActivity extends AppCompatActivity {
         myHikes.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showCustomHikes();
+                String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+                showCustomHikes(currentUserId);
             }
         });
     }
@@ -193,35 +197,11 @@ public class UserActivity extends AppCompatActivity {
         hikesList.add("Temescal Canyon Falls");
         hikesList.add("Trail Canyon Falls");
         hikeAdapter.notifyDataSetChanged();
-
-        /*db.collection("Hikes")
-                .orderBy("name")
-                .startAt(query)
-                .endAt(query + "\uf8ff")
-                .limit(10)
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        hikesList.clear();
-                        for (QueryDocumentSnapshot document : task.getResult()) {
-                            String hikeName = document.getString("name");
-                            if (hikeName != null) {
-                                hikesList.add(hikeName);
-                            }
-                        }
-                        hikeAdapter.notifyDataSetChanged(); // Update dropdown suggestions
-                        Log.d("UserActivity", "Hike suggestions: " + hikesList); // Log the fetched data
-                    } else {
-                        Toast.makeText(UserActivity.this, "Failed to load hike suggestions.", Toast.LENGTH_SHORT).show();
-                    }
-                });*/
     }
 
 
     private void queryUserByEmail(String email) {
-        // Get the current user's ID
         String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-
         db.collection("Users")
                 .whereEqualTo("email", email)
                 .get()
@@ -233,12 +213,6 @@ public class UserActivity extends AppCompatActivity {
                                 String friendUserId = document.getId();
                                 String foundEmail = document.getString("email");
                                 String username = document.getString("username");
-
-                                // Log user info for debugging
-                                Log.d("MY ACCT", "Current User ID: " + currentUserId);
-                                Log.d("FRIEND ACCT", "Friend Email: " + foundEmail);
-
-                                // Add the friend to the current user's friends array
                                 db.collection("Users").document(currentUserId)
                                         .update("friends", FieldValue.arrayUnion(friendUserId))
                                         .addOnSuccessListener(aVoid -> {
@@ -248,7 +222,7 @@ public class UserActivity extends AppCompatActivity {
                                             Toast.makeText(UserActivity.this, "Failed to add friend.", Toast.LENGTH_SHORT).show();
                                         });
 
-                                // Add the current user to the friend's friends array
+
                                 db.collection("Users").document(friendUserId)
                                         .update("friends", FieldValue.arrayUnion(currentUserId))
                                         .addOnFailureListener(e -> {
@@ -256,7 +230,6 @@ public class UserActivity extends AppCompatActivity {
                                         });
                             }
                         } else {
-                            // No user found with the specified email
                             Toast.makeText(UserActivity.this, "No user found with this email.", Toast.LENGTH_SHORT).show();
                         }
                     } else {
@@ -265,9 +238,10 @@ public class UserActivity extends AppCompatActivity {
                 });
     }
 
+
+
     private void fetchAndShowFriends() {
         String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-
         db.collection("Users").document(currentUserId).get()
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists()) {
@@ -290,10 +264,10 @@ public class UserActivity extends AppCompatActivity {
             db.collection("Users").document(friendId).get()
                     .addOnSuccessListener(documentSnapshot -> {
                         if (documentSnapshot.exists()) {
-                            String friendEmail = documentSnapshot.getString("username");
-                            friendsList.add(friendEmail);
+                            String friendEmail = documentSnapshot.getString("email");
+                            friendsList.add(new Pair<>(friendId, friendEmail));
                             if (friendsList.size() == friendIds.size()) {
-                                showFriendsDialog();
+                                showFriendsDialog(friendIds);
                             }
                         }
                     })
@@ -303,18 +277,28 @@ public class UserActivity extends AppCompatActivity {
         }
     }
 
-    private void showFriendsDialog() {
+
+
+
+    private void showFriendsDialog(ArrayList<String> friendIds) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Your Friends");
 
-        String[] friendsArray = friendsList.toArray(new String[0]);
-        builder.setItems(friendsArray, (dialog, which) -> {
 
+        String[] friendsArray = new String[friendsList.size()];
+        for (int i = 0; i < friendsList.size(); i++) {
+            friendsArray[i] = friendsList.get(i).second; // Get the email part of the pair
+        }
+
+        builder.setItems(friendsArray, (dialog, which) -> {
+            String selectedFriendId = friendsList.get(which).first;
+            showCustomHikes(selectedFriendId);
         });
 
         builder.setPositiveButton("OK", (dialog, which) -> dialog.dismiss());
         builder.create().show();
     }
+
 
     private void hikeQuery(String hike) {
         db.collection("Hikes")
@@ -340,8 +324,6 @@ public class UserActivity extends AppCompatActivity {
                                 Boolean trash = document.getBoolean("Trash Cans") != null ? document.getBoolean("Trash Cans") : false;
                                 Boolean water = document.getBoolean("Water Fountains") != null ? document.getBoolean("Water Fountains") : false;
                                 Boolean wifi = document.getBoolean("WiFi") != null ? document.getBoolean("WiFi") : false;
-
-
                                 Hike queriedHike = new Hike(
                                         hikeID,
                                         name,
@@ -358,8 +340,6 @@ public class UserActivity extends AppCompatActivity {
                                         water,
                                         wifi
                                 );
-
-
                                 if (queriedHike != null) {
                                     Log.d("HikeActivity", "Hike details loaded: " + queriedHike.getName());
                                 } else {
@@ -378,7 +358,6 @@ public class UserActivity extends AppCompatActivity {
                 });
     }
 
-    // Method to show the search results in a popup
     private void showSearchResultsDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Search Results");
@@ -392,31 +371,43 @@ public class UserActivity extends AppCompatActivity {
         builder.create().show();
     }
 
-    private void showCustomHikes() {
-        String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        db.collection("Users").document(currentUserId).get()
+    private void showCustomHikes(String userId) {
+        db.collection("Users").document(userId).get()
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists()) {
                         ArrayList<String> userHikes = (ArrayList<String>) documentSnapshot.get("customHikes");
-                        if (userHikes != null && !userHikes.isEmpty()) {
-                            StringBuilder hikeList = new StringBuilder("My Hikes: " + "\n");
-                            for (int i = 0; i < userHikes.size(); i++) {
-                                hikeList.append(userHikes.get(i)).append("\n");
+                        Boolean hikesPublic = (Boolean) documentSnapshot.get("Public");
+                        StringBuilder hikeList = new StringBuilder();
+                        String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+                        if (userHikes == null || userHikes.isEmpty()) {
+                            if (hikesPublic || userId.equals(currentUserId)) {
+                                hikeList.append("No hikes!");
+                            } else {
+                                hikeList.append("User's Hikes are Private!");
                             }
-                            new android.app.AlertDialog.Builder(UserActivity.this)
-                                    .setTitle("Custom Hikes: ")
-                                    .setMessage(userHikes.toString())
-                                    .setPositiveButton("Close", (dialog, which) -> dialog.dismiss())
-                                    .show();
                         } else {
-                            Toast.makeText(UserActivity.this, "No custom hikes added.", Toast.LENGTH_SHORT).show();
+                            if (Boolean.TRUE.equals(hikesPublic) || userId.equals(currentUserId)) {
+                                for (String hike : userHikes) {
+                                    hikeList.append(hike).append("\n");
+                                }
+                            } else {
+                                hikeList.append("User's Hikes are Private!");
+                            }
                         }
+                        new android.app.AlertDialog.Builder(UserActivity.this)
+                                .setTitle("Custom Hikes")
+                                .setMessage(hikeList.toString())
+                                .setPositiveButton("Close", (dialog, which) -> dialog.dismiss())
+                                .show();
+                    } else {
+                        Toast.makeText(UserActivity.this, "No custom hikes added.", Toast.LENGTH_SHORT).show();
                     }
                 })
                 .addOnFailureListener(e ->
                         Toast.makeText(UserActivity.this, "Failed to fetch custom hikes.", Toast.LENGTH_SHORT).show()
                 );
     }
+
 
     private void togglePrivacy(Button button){
         String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
