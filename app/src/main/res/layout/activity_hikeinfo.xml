@@ -9,10 +9,11 @@
     <!-- Back to Profile Button -->
     <TextView
         android:id="@+id/text_hike_name"
-        android:layout_width="196dp"
-        android:layout_height="56dp"
+        android:layout_width="211dp"
+        android:layout_height="136dp"
         android:layout_marginTop="8dp"
         android:backgroundTint="#D71313"
+        android:gravity="center|top"
         android:shadowColor="#E01919"
         android:shadowRadius="50"
         android:text="MY PROFILE"
@@ -30,31 +31,46 @@
         android:id="@+id/buttonBackToProfile"
         android:layout_width="68dp"
         android:layout_height="61dp"
+        android:layout_marginTop="7dp"
         android:backgroundTint="#BFFFFFFF"
         android:text="Back"
         app:layout_constraintStart_toStartOf="parent"
-        tools:layout_editor_absoluteY="7dp" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <!-- Show Hike Details Button -->
     <Button
         android:id="@+id/buttonShowDetails"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Show Hike Details"
-        app:layout_constraintTop_toBottomOf="@id/text_hike_name"
         android:layout_marginTop="150dp"
+        android:backgroundTint="#BFFFFFFF"
+        android:text="Show Hike Details"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/text_hike_name" />
 
     <!-- Add to My List Button -->
     <Button
         android:id="@+id/buttonAddHike"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Add to My List"
-        app:layout_constraintTop_toBottomOf="@id/buttonShowDetails"
         android:layout_marginTop="20dp"
+        android:backgroundTint="#BFFFFFFF"
+        android:text="Add to My List"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/buttonShowDetails" />
+
+    <Button
+        android:id="@+id/buttonReview"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:backgroundTint="#BFFFFFFF"
+        android:text="Review"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/buttonAddHike" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

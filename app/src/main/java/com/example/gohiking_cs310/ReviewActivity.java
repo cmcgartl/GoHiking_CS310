@@ -1,24 +1,116 @@
 package com.example.gohiking_cs310;
 
-public class ReviewActivity {
-    private String reviewID;
-    private String userID;
-    private String hikeID;
-    private double rating;
-    private String comments;
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.RatingBar;
+import android.widget.TextView;
+import android.widget.Toast;
 
-    public ReviewActivity(String reviewID, String userID, String hikeID, double rating, String comments) {
-        this.reviewID = reviewID;
-        this.userID = userID;
-        this.hikeID = hikeID;
-        this.rating = rating;
-        this.comments = comments;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.ArrayList;
+
+public class ReviewActivity extends AppCompatActivity {
+
+    private FirebaseFirestore db;
+    private String hikeId;
+    private TextView reviewListTextView;
+    private RatingBar ratingBar;
+    private EditText reviewEditText;
+    private ArrayList<String> reviews = new ArrayList<>();
+    private ArrayList<Double> ratings = new ArrayList<>();
+
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_review);
+
+        db = FirebaseFirestore.getInstance();
+        hikeId = getIntent().getStringExtra("hikeId"); // Pass hike ID from HikeActivity
+
+        reviewListTextView = findViewById(R.id.review_list_text_view);
+        ratingBar = findViewById(R.id.rating_bar);
+        reviewEditText = findViewById(R.id.review_edit_text);
+        Button submitButton = findViewById(R.id.submit_review_button);
+
+        Button backToProfile = findViewById(R.id.buttonBackToHike);
+        backToProfile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(ReviewActivity.this, HikeActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        loadReviews();
+
+        submitButton.setOnClickListener(v -> submitReview());
     }
 
-    public void submitReview() {
+    private void loadReviews() {
+        db.collection("Hikes").document(hikeId).get().addOnSuccessListener(documentSnapshot -> {
+            if (documentSnapshot.exists()) {
+                reviews = (ArrayList<String>) documentSnapshot.get("reviews");
+                ratings = (ArrayList<Double>) documentSnapshot.get("ratings");
+
+                displayReviews();
+                displayAverageRating();
+            }
+        });
     }
 
-    public String getReview() {
-        return comments;
+    private void displayReviews() {
+        StringBuilder reviewsText = new StringBuilder();
+        if (reviews != null && !reviews.isEmpty()) {
+            for (String review : reviews) {
+                reviewsText.append("- ").append(review).append("\n\n");
+            }
+        } else {
+            reviewsText.append("No reviews yet.");
+        }
+        reviewListTextView.setText(reviewsText.toString());
+    }
+
+    private void displayAverageRating() {
+        if (ratings != null && !ratings.isEmpty()) {
+            double total = 0;
+            for (double rating : ratings) {
+                total += rating;
+            }
+            double averageRating = total / ratings.size();
+            String averageRatingText = "Average Rating: " + String.format("%.1f", averageRating) + "/5";
+            ((TextView) findViewById(R.id.average_rating_text_view)).setText(averageRatingText);
+        } else {
+            ((TextView) findViewById(R.id.average_rating_text_view)).setText("No ratings yet.");
+        }
+    }
+
+    private void submitReview() {
+        String reviewText = reviewEditText.getText().toString().trim();
+        float rating = ratingBar.getRating();
+
+        if (!reviewText.isEmpty() && rating > 0) {
+            reviews.add(reviewText);
+            ratings.add((double) rating);
+
+            db.collection("Hikes").document(hikeId)
+                    .update("reviews", reviews, "ratings", ratings)
+                    .addOnSuccessListener(aVoid -> {
+                        Toast.makeText(this, "Review submitted!", Toast.LENGTH_SHORT).show();
+                        reviewEditText.setText("");
+                        ratingBar.setRating(0);
+                        displayReviews();
+                        displayAverageRating();
+                    })
+                    .addOnFailureListener(e -> Toast.makeText(this, "Failed to submit review", Toast.LENGTH_SHORT).show());
+        } else {
+            Toast.makeText(this, "Please provide both a review and rating", Toast.LENGTH_SHORT).show();
+        }
     }
 }

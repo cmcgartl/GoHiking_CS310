@@ -4,9 +4,11 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.AutoCompleteTextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
@@ -18,21 +20,21 @@ import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.DocumentSnapshot;
 
 
 import org.w3c.dom.Text;
 
 import java.util.ArrayList;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class UserActivity extends AppCompatActivity {
     private FirebaseFirestore db;
     private ArrayList<String> friendsList = new ArrayList<>();
     private ArrayList<String> hikesList = new ArrayList<>();
+    private ArrayAdapter<String> hikeAdapter;
+    private AutoCompleteTextView autoCompleteHikeSearch;
+    private Boolean pub;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,12 +43,75 @@ public class UserActivity extends AppCompatActivity {
 
         db = FirebaseFirestore.getInstance();
 
+        autoCompleteHikeSearch = findViewById(R.id.editTextSearchHike);
+        hikeAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, hikesList);
+        autoCompleteHikeSearch.setAdapter(hikeAdapter);
+        loadHikeSuggestions("");
+
+        autoCompleteHikeSearch.setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus) {
+                autoCompleteHikeSearch.showDropDown();
+            }
+        });
+
+        autoCompleteHikeSearch.addTextChangedListener(new android.text.TextWatcher() {
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                loadHikeSuggestions(s.toString());
+            }
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+
+            @Override
+            public void afterTextChanged(android.text.Editable s) { }
+        });
+
+        autoCompleteHikeSearch.setOnItemClickListener((parent, view, position, id) -> {
+            String selectedHike = hikeAdapter.getItem(position);
+            Toast.makeText(UserActivity.this, "Selected Hike: " + selectedHike, Toast.LENGTH_SHORT).show();
+            hikeQuery(selectedHike);
+        });
+
+        Button logoutButton = findViewById(R.id.buttonLogOut);
+        logoutButton.setOnClickListener(v -> {
+            FirebaseAuth.getInstance().signOut(); // Log out the current user
+            Toast.makeText(UserActivity.this, "Logged out successfully.", Toast.LENGTH_SHORT).show();
+
+            // Redirect to MapsActivity (or another activity if preferred)
+            Intent intent = new Intent(UserActivity.this, MapsActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+            finish(); // Finish UserActivity to prevent returning to it on back press
+        });
+
         Button buttonBackToHome = findViewById(R.id.buttonBackHome);
         buttonBackToHome.setOnClickListener(v -> {
             Intent intent = new Intent(UserActivity.this, MapsActivity.class);
             startActivity(intent);
-            finish(); // Optional: Close the current activity if needed
+            finish();
         });
+
+        Button privacy = findViewById(R.id.buttonPrivacy);
+        privacy.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                togglePrivacy(privacy);
+            }
+        });
+        String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        db.collection("Users").document(currentUserId).get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        pub  = (Boolean)documentSnapshot.get("Public");
+                        if(pub){
+                            privacy.setText("Privacy: Public \n Click to Toggle");
+                        }
+                        else{
+                            privacy.setText("Privacy: Private \n Click to Toggle");
+                        }
+                    }
+                });
 
         Button addFriend = findViewById(R.id.buttonAddFriend);
         addFriend.setOnClickListener(new View.OnClickListener() {
@@ -89,20 +154,7 @@ public class UserActivity extends AppCompatActivity {
         Button myFriendsButton = findViewById(R.id.buttonMyFriends);
         myFriendsButton.setOnClickListener(v -> fetchAndShowFriends());
 
-        Button logout = findViewById(R.id.buttonLogOut);
-        logout.setOnClickListener(v -> {
-            // Log out Firebase Auth current user
-            FirebaseAuth.getInstance().signOut();
-
-            // Redirect to MapsActivity (or another activity, like LoginActivity, if you want to log them out completely)
-            Intent intent = new Intent(UserActivity.this, MapsActivity.class);
-            startActivity(intent);
-
-            // Optionally, finish the current activity to remove it from the back stack
-            finish();
-        });
-
-        Button searchButton = findViewById(R.id.buttonSearchHike);
+        Button searchButton = findViewById(R.id.search_button);
         searchButton.setOnClickListener(v -> {
             EditText searchInput = findViewById(R.id.editTextSearchHike);
             String searchQuery = searchInput.getText().toString().trim();
@@ -130,6 +182,41 @@ public class UserActivity extends AppCompatActivity {
             }
         });
     }
+
+    private void loadHikeSuggestions(String query) {
+        hikesList.clear();
+        hikesList.add("Griffith Observatory");
+        hikesList.add("Hollywood Sign");
+        hikesList.add("Rancho Palos Verdes Shoreline Preserve");
+        hikesList.add("Skid Row");
+        hikesList.add("Sycamore Canyon Trailhead");
+        hikesList.add("Temescal Canyon Falls");
+        hikesList.add("Trail Canyon Falls");
+        hikeAdapter.notifyDataSetChanged();
+
+        /*db.collection("Hikes")
+                .orderBy("name")
+                .startAt(query)
+                .endAt(query + "\uf8ff")
+                .limit(10)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        hikesList.clear();
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            String hikeName = document.getString("name");
+                            if (hikeName != null) {
+                                hikesList.add(hikeName);
+                            }
+                        }
+                        hikeAdapter.notifyDataSetChanged(); // Update dropdown suggestions
+                        Log.d("UserActivity", "Hike suggestions: " + hikesList); // Log the fetched data
+                    } else {
+                        Toast.makeText(UserActivity.this, "Failed to load hike suggestions.", Toast.LENGTH_SHORT).show();
+                    }
+                });*/
+    }
+
 
     private void queryUserByEmail(String email) {
         // Get the current user's ID
@@ -179,9 +266,8 @@ public class UserActivity extends AppCompatActivity {
     }
 
     private void fetchAndShowFriends() {
-        Log.d("func", "showFriendsDialog");
         String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        Log.d("user", currentUserId);
+
         db.collection("Users").document(currentUserId).get()
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists()) {
@@ -199,36 +285,25 @@ public class UserActivity extends AppCompatActivity {
     }
 
     private void fetchFriendDetails(ArrayList<String> friendIds) {
-        Log.d("func", "fetchFriendDetails");
         friendsList.clear();
-        // A counter to track completed fetch operations
-        AtomicInteger counter = new AtomicInteger(0);
-
         for (String friendId : friendIds) {
             db.collection("Users").document(friendId).get()
                     .addOnSuccessListener(documentSnapshot -> {
                         if (documentSnapshot.exists()) {
                             String friendEmail = documentSnapshot.getString("username");
                             friendsList.add(friendEmail);
-                        }
-                        // Increment the counter after each success
-                        if (counter.incrementAndGet() == friendIds.size()) {
-                            // Show dialog once all friend details are fetched
-                            showFriendsDialog();
+                            if (friendsList.size() == friendIds.size()) {
+                                showFriendsDialog();
+                            }
                         }
                     })
                     .addOnFailureListener(e -> {
                         Toast.makeText(UserActivity.this, "Failed to fetch friend details.", Toast.LENGTH_SHORT).show();
-                        // Also increment the counter in case of failure
-                        if (counter.incrementAndGet() == friendIds.size()) {
-                            showFriendsDialog();
-                        }
                     });
         }
     }
 
     private void showFriendsDialog() {
-        Log.d("func", "showFriendsDialog");
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Your Friends");
 
@@ -239,36 +314,6 @@ public class UserActivity extends AppCompatActivity {
 
         builder.setPositiveButton("OK", (dialog, which) -> dialog.dismiss());
         builder.create().show();
-    }
-
-    private void searchForHikes(String searchQuery) {
-        hikesList.clear();
-
-        // Query the "Hikes" collection in Firestore
-        db.collection("Hikes")
-                .orderBy("name")
-                .startAt(searchQuery)
-                .endAt(searchQuery + "\uf8ff") // Matches hikes whose names start with the search term
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        for (DocumentSnapshot document : task.getResult()) {
-                            String hikeName = document.getString("name");
-                            if (hikeName != null) {
-                                hikesList.add(hikeName);
-                            }
-                        }
-                        if (!hikesList.isEmpty()) {
-                            showSearchResultsDialog();
-                        } else {
-                            Toast.makeText(getApplicationContext(), "No hikes found matching your search.", Toast.LENGTH_SHORT).show();
-                        }
-
-                    } else {
-                        Toast.makeText(getApplicationContext(), "Error searching for hikes.", Toast.LENGTH_SHORT).show();
-
-                    }
-                });
     }
 
     private void hikeQuery(String hike) {
@@ -371,4 +416,27 @@ public class UserActivity extends AppCompatActivity {
                         Toast.makeText(UserActivity.this, "Failed to fetch custom hikes.", Toast.LENGTH_SHORT).show()
                 );
     }
+
+    private void togglePrivacy(Button button){
+        String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        db.collection("Users").document(currentUserId).get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        pub  = (Boolean)documentSnapshot.get("Public");
+                        if(pub){
+                            pub = false;
+                            db.collection("Users").document(currentUserId)
+                                    .update("Public", pub);
+                            button.setText("Privacy: Private \n Click to Toggle");
+                        }
+                        else{
+                            pub = true;
+                            db.collection("Users").document(currentUserId)
+                                    .update("Public", pub);
+                            button.setText("Privacy: Public \n Click to Toggle");
+                        }
+                    }
+                });
+    }
+
 }

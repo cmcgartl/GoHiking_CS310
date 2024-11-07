@@ -58,17 +58,27 @@
         android:backgroundTint="#BFFFFFFF"
         android:text="Back"
         app:layout_constraintStart_toStartOf="parent"
-        tools:layout_editor_absoluteY="7dp" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <Button
         android:id="@+id/buttonLogOut"
+        android:layout_width="80dp"
+        android:layout_height="61dp"
+        android:backgroundTint="#BFFFFFFF"
+        android:text="Log Out"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/buttonPrivacy"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Log Out"
-        android:layout_marginTop="16dp"
-        app:layout_constraintTop_toBottomOf="@id/buttonBackHome"
+        android:layout_marginTop="18dp"
+        android:backgroundTint="#BFFFFFFF"
+        android:text="Privacy Settings"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintTop_toBottomOf="@+id/titleUserProfile" />
 
 
 
@@ -81,6 +91,7 @@
         android:backgroundTint="#FFFFFF"
         android:bufferType="spannable"
         android:hint="   Enter friend's email"
+        android:textColor="#000000"
         app:layout_constraintEnd_toStartOf="@id/buttonAddFriend"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
@@ -96,25 +107,6 @@
         app:layout_constraintTop_toTopOf="@id/editTextAddFriend" />
 
     <!-- Search for Hike Section -->
-
-    <EditText
-        android:id="@+id/editTextSearchHike"
-        android:layout_width="256dp"
-        android:layout_height="47dp"
-        android:layout_marginTop="16dp"
-        android:background="#BFFFFFFF"
-        android:hint="   Search for a hike"
-        app:layout_constraintTop_toBottomOf="@id/editTextAddFriend"
-        tools:layout_editor_absoluteX="-1dp" />
-
-    <Button
-        android:id="@+id/buttonSearchHike"
-        android:layout_width="101dp"
-        android:layout_height="44dp"
-        android:backgroundTint="#BFFF0000"
-        android:text="Search"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@id/editTextSearchHike" />
 
     <Button
         android:id="@+id/buttonMyFriends"
@@ -137,5 +129,28 @@
         android:text="My Hikes"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
+
+    <Button
+        android:id="@+id/search_button"
+        android:layout_width="100dp"
+        android:layout_height="48dp"
+        android:layout_marginTop="16dp"
+        android:backgroundTint="#BFFF0000"
+        android:text="Search"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/buttonAddFriend" />
+
+    <AutoCompleteTextView
+        android:id="@+id/editTextSearchHike"
+        android:layout_width="254dp"
+        android:layout_height="47dp"
+        android:layout_marginTop="16dp"
+        android:background="#FFFFFF"
+        android:backgroundTint="#BFFFFFFF"
+        android:completionThreshold="0"
+        android:hint="   Search For A Hike"
+        android:textColor="#535353"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/editTextAddFriend" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
