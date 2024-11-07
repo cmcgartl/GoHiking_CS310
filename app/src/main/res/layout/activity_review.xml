@@ -47,10 +47,21 @@
         android:layout_marginEnd="16dp"
         android:background="#FFF0F0F0"
         android:padding="16dp"
+        android:orientation="vertical"
         android:gravity="center"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/review_list_text_view">
+
+        <TextView
+            android:id="@+id/rate_hike_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Rate this Hike"
+            android:textColor="#000000"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp" />
 
         <RatingBar
             android:id="@+id/rating_bar"
