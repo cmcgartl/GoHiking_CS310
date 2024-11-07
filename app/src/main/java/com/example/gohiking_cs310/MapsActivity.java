@@ -66,6 +66,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             signUpButton.setVisibility(View.VISIBLE);
             profileButton.setVisibility(View.GONE);
             groupButton.setVisibility(View.GONE);
+            logout.setVisibility(View.GONE);
 
             loginButton.setOnClickListener(v -> {
                 Intent intent = new Intent(MapsActivity.this, Login.class);
