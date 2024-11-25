@@ -1,7 +1,9 @@
 package com.example.gohiking_cs310;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class User {
     private String userId;
@@ -9,6 +11,8 @@ public class User {
     private List<String> friends;
     private List<String> customHikes;
     private List<String> groupActivities;
+    public Map<String,List<String>> customList;
+    public Map<String, Boolean> listPrivacy;
     public String username;
     public Boolean Public;
 
@@ -20,6 +24,8 @@ public class User {
         this.customHikes = new ArrayList<>();
         this.groupActivities = new ArrayList<>();
         this.Public = true;
+        this.customList = new HashMap<>();
+        this.listPrivacy = new HashMap<>();
     }
 
     public User(String userId, String email, String username) {
@@ -30,6 +36,8 @@ public class User {
         this.groupActivities = new ArrayList<>();
         this.username = username;
         this.Public = true;
+        this.customList = new HashMap<>();
+        this.listPrivacy = new HashMap<>();
     }
 
 
