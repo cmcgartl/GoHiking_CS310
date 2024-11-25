@@ -29,11 +29,11 @@ import java.util.HashMap;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
-    private GoogleMap mMap;
+    GoogleMap mMap;
     private ActivityMapsBinding binding;
     private FirebaseFirestore db;
     private CollectionReference hikesCollection;
-    private HashMap<Marker, Hike> markerHikeMap = new HashMap<>();
+    HashMap<Marker, Hike> markerHikeMap = new HashMap<>();
     private HashMap<String, Hike> HikeIDMap = new HashMap<>();
 
     @Override
