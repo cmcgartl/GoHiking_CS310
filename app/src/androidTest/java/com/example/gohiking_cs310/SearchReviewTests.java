@@ -26,7 +26,8 @@ public class SearchReviewTests {
     public ActivityScenarioRule<UserActivity> activityRule =
             new ActivityScenarioRule<>(UserActivity.class);
 
-    // TEST 10: Verify Search Functionality with Valid Input
+    // BLACK BOX TEST 10: Verify Search Functionality with Valid Input
+    // AUTHOR: DOUG PETERSON
     @Test
     public void testSearchWithValidInput() {
         // Log in the user
@@ -59,7 +60,8 @@ public class SearchReviewTests {
                 .check(matches(isDisplayed()));
     }
 
-    // TEST 11: Verify Search Functionality with Invalid Input
+    // BLACK BOX TEST 11: Verify Search Functionality with Invalid Input
+    // AUTHOR: DOUG PETERSON
     @Test
     public void testSearchWithInvalidInput() {
         // Log in the user
@@ -92,7 +94,8 @@ public class SearchReviewTests {
                 .check(matches(isDisplayed()));
     }
 
-    // TEST 12: Verify Review Submission
+    // BLACK BOX TEST 12: Verify Review Submission
+    // AUTHOR: DOUG PETERSON
     @Test
     public void testSubmitReview() {
         // Log in the user
@@ -134,7 +137,8 @@ public class SearchReviewTests {
                 .check(matches(isDisplayed()));
     }
 
-    // TEST 13: Verify Display of Average Rating
+    // BLACK BOX TEST 13: Verify Display of Average Rating
+    // AUTHOR: DOUG PETERSON
     @Test
     public void testAverageRatingDisplay() {
         // Log in the user
@@ -176,7 +180,8 @@ public class SearchReviewTests {
                 .check(matches(withText("Average Rating: 5")));
     }
 
-    // TEST 14: Verify Duplicate Review Handling
+    // BLACK BOX TEST 14: Verify Duplicate Review Handling
+    // AUTHOR: DOUG PETERSON
     @Test
     public void testDuplicateReviewSubmission() {
         // Log in the user
