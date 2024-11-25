@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@drawable/redwood"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <TextView
+        android:id="@+id/titleUserProfile"
+        android:layout_width="156dp"
+        android:layout_height="55dp"
+        android:layout_marginTop="32dp"
+        android:backgroundTint="#D71313"
+        android:shadowColor="#E01919"
+        android:shadowRadius="50"
+        android:text="MY LISTS"
+        android:textColor="#FFFFFF"
+        android:textColorHighlight="#C01B1B"
+        android:textColorHint="#A62626"
+        android:textSize="34sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/buttonBackHome"
+        android:layout_width="68dp"
+        android:layout_height="61dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="32dp"
+        android:backgroundTint="#BFFFFFFF"
+        android:text="Back"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <EditText
+        android:id="@+id/editTextCreateList"
+        android:layout_width="254dp"
+        android:layout_height="43dp"
+        android:layout_marginTop="229dp"
+        android:background="#BFFFFFFF"
+        android:backgroundTint="#FFFFFF"
+        android:bufferType="spannable"
+        android:hint="   Enter New List Name"
+        android:textColor="#000000"
+        app:layout_constraintEnd_toStartOf="@id/buttonCreateList"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/buttonBackHome" />
+
+    <Button
+        android:id="@+id/buttonCreateList"
+        android:layout_width="110dp"
+        android:layout_height="61dp"
+        android:layout_marginTop="320dp"
+        android:layout_marginEnd="16dp"
+        android:backgroundTint="#BFFF0000"
+        android:text="Create New List"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+    <EditText
+        android:id="@+id/editTextPrivacy"
+        android:layout_width="254dp"
+        android:layout_height="43dp"
+        android:layout_marginTop="36dp"
+        android:background="#BFFFFFFF"
+        android:backgroundTint="#FFFFFF"
+        android:bufferType="spannable"
+        android:hint="   Enter List To Manage"
+        android:textColor="#000000"
+        app:layout_constraintEnd_toStartOf="@id/buttonCreateList"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/editTextCreateList" />
+
+    <Button
+        android:id="@+id/buttonPrivacyToggle"
+        android:layout_width="110dp"
+        android:layout_height="61dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginEnd="16dp"
+        android:backgroundTint="#BFFF0000"
+        android:text="Toggle Privacy"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/buttonCreateList" />
+
+    <Button
+        android:id="@+id/buttonMyLists"
+        android:layout_width="140dp"
+        android:layout_height="75dp"
+        android:layout_marginEnd="128dp"
+        android:layout_marginBottom="56dp"
+        android:backgroundTint="#BFFF0000"
+        android:text="My Lists"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+</androidx.constraintlayout.widget.ConstraintLayout>

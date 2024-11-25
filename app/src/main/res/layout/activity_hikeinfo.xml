@@ -50,16 +50,33 @@
         app:layout_constraintTop_toBottomOf="@id/text_hike_name" />
 
     <!-- Add to My List Button -->
+
+    <EditText
+        android:id="@+id/editTextAddHike"
+        android:layout_width="254dp"
+        android:layout_height="43dp"
+        android:layout_marginTop="28dp"
+        android:background="#BFFFFFFF"
+        android:backgroundTint="#FFFFFF"
+        android:bufferType="spannable"
+        android:hint="   Enter Custom List"
+        android:textColor="#000000"
+        app:layout_constraintEnd_toStartOf="@id/buttonAddHike"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/buttonShowDetails" />
+
+
     <Button
         android:id="@+id/buttonAddHike"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:backgroundTint="#BFFFFFFF"
-        android:text="Add to My List"
+        android:layout_width="104dp"
+        android:layout_height="44dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="20dp"
+        android:backgroundTint="#BFFF0000"
+        android:text="Add Hike"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/buttonShowDetails" />
+        app:layout_constraintTop_toTopOf="@id/editTextAddHike" />
 
     <Button
         android:id="@+id/buttonReview"

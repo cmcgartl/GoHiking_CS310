@@ -69,17 +69,15 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
-        android:id="@+id/buttonPrivacy"
+        android:id="@+id/buttonCustomList"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="18dp"
         android:backgroundTint="#BFFFFFFF"
-        android:text="Privacy Settings"
+        android:text="Manage My Custom Lists"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/titleUserProfile" />
-
-
 
     <EditText
         android:id="@+id/editTextAddFriend"

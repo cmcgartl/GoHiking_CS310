@@ -28,10 +28,11 @@ import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class UserActivity extends AppCompatActivity {
     private FirebaseFirestore db;
-   // private ArrayList<String> friendsList = new ArrayList<>();
+    // private ArrayList<String> friendsList = new ArrayList<>();
     private ArrayList<String> hikesList = new ArrayList<>();
     private ArrayAdapter<String> hikeAdapter;
     private AutoCompleteTextView autoCompleteHikeSearch;
@@ -95,26 +96,12 @@ public class UserActivity extends AppCompatActivity {
             finish();
         });
 
-        Button privacy = findViewById(R.id.buttonPrivacy);
-        privacy.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                togglePrivacy(privacy);
-            }
+        Button buttonCustom = findViewById(R.id.buttonCustomList);
+        buttonCustom.setOnClickListener(v -> {
+            Intent intent = new Intent(UserActivity.this, CustomListActivity.class);
+            startActivity(intent);
+            finish();
         });
-        String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        db.collection("Users").document(currentUserId).get()
-                .addOnSuccessListener(documentSnapshot -> {
-                    if (documentSnapshot.exists()) {
-                        pub  = (Boolean)documentSnapshot.get("Public");
-                        if(pub){
-                            privacy.setText("Privacy: Public \n Click to Toggle");
-                        }
-                        else{
-                            privacy.setText("Privacy: Private \n Click to Toggle");
-                        }
-                    }
-                });
 
         Button addFriend = findViewById(R.id.buttonAddFriend);
         addFriend.setOnClickListener(new View.OnClickListener() {
@@ -182,7 +169,7 @@ public class UserActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-                showCustomHikes(currentUserId);
+                showFriendsLists(currentUserId);
             }
         });
     }
@@ -238,8 +225,6 @@ public class UserActivity extends AppCompatActivity {
                 });
     }
 
-
-
     private void fetchAndShowFriends() {
         String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
         db.collection("Users").document(currentUserId).get()
@@ -277,9 +262,6 @@ public class UserActivity extends AppCompatActivity {
         }
     }
 
-
-
-
     private void showFriendsDialog(ArrayList<String> friendIds) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Your Friends");
@@ -292,13 +274,12 @@ public class UserActivity extends AppCompatActivity {
 
         builder.setItems(friendsArray, (dialog, which) -> {
             String selectedFriendId = friendsList.get(which).first;
-            showCustomHikes(selectedFriendId);
+            showFriendsLists(selectedFriendId);
         });
 
         builder.setPositiveButton("OK", (dialog, which) -> dialog.dismiss());
         builder.create().show();
     }
-
 
     private void hikeQuery(String hike) {
         db.collection("Hikes")
@@ -358,40 +339,58 @@ public class UserActivity extends AppCompatActivity {
                 });
     }
 
-    private void showSearchResultsDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Search Results");
+    private void showFriendsLists(String userId){
+        db.collection("Users").document(userId).get()
 
-        String[] hikesArray = hikesList.toArray(new String[0]);
-        builder.setItems(hikesArray, (dialog, which) -> {
-
-        });
-
-        builder.setPositiveButton("OK", (dialog, which) -> dialog.dismiss());
-        builder.create().show();
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+                        Map<String, List<String>> customList = (Map<String, List<String>>) documentSnapshot.get("customList");
+                        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                        if(userId == currentUserId){
+                            builder.setTitle("Your List");
+                        }
+                        else {
+                            builder.setTitle("Your friend's List");
+                        }
+                        String[] lists = new String[customList.size()];
+                        int i = 0;
+                        for(String hike : customList.keySet()){
+                            lists[i] = hike;
+                            i++;
+                        }
+                        builder.setItems(lists, (dialog, which) -> {
+                            String selectedList = lists[which];
+                            showCustomHikes(selectedList, userId);
+                        });
+                        builder.setPositiveButton("OK", (dialog, which) -> dialog.dismiss());
+                        builder.create().show();
+                    }
+                });
     }
 
-    private void showCustomHikes(String userId) {
+    private void showCustomHikes(String listName, String userId) {
         db.collection("Users").document(userId).get()
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists()) {
-                        ArrayList<String> userHikes = (ArrayList<String>) documentSnapshot.get("customHikes");
-                        Boolean hikesPublic = (Boolean) documentSnapshot.get("Public");
+                        Map<String, List<String>> customList = (Map<String, List<String>>) documentSnapshot.get("customList");
+                        Map<String, Boolean> privacy = (Map<String, Boolean>) documentSnapshot.get("listPrivacy");
+                        Boolean isPublic = privacy.get(listName);
                         StringBuilder hikeList = new StringBuilder();
                         String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-                        if (userHikes == null || userHikes.isEmpty()) {
-                            if (hikesPublic || userId.equals(currentUserId)) {
-                                hikeList.append("No hikes!");
+                        if (customList.get(listName) == null || customList.get(listName).isEmpty()) {
+                            if (isPublic || userId.equals(currentUserId)) {
+                                hikeList.append("No hikes in this list!");
                             } else {
-                                hikeList.append("User's Hikes are Private!");
+                                hikeList.append("This list is Private!");
                             }
                         } else {
-                            if (Boolean.TRUE.equals(hikesPublic) || userId.equals(currentUserId)) {
-                                for (String hike : userHikes) {
+                            if (isPublic || userId.equals(currentUserId)) {
+                                for (String hike : customList.get(listName)) {
                                     hikeList.append(hike).append("\n");
                                 }
                             } else {
-                                hikeList.append("User's Hikes are Private!");
+                                hikeList.append("This list is Private!");
                             }
                         }
                         new android.app.AlertDialog.Builder(UserActivity.this)
@@ -407,28 +406,4 @@ public class UserActivity extends AppCompatActivity {
                         Toast.makeText(UserActivity.this, "Failed to fetch custom hikes.", Toast.LENGTH_SHORT).show()
                 );
     }
-
-
-    private void togglePrivacy(Button button){
-        String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        db.collection("Users").document(currentUserId).get()
-                .addOnSuccessListener(documentSnapshot -> {
-                    if (documentSnapshot.exists()) {
-                        pub  = (Boolean)documentSnapshot.get("Public");
-                        if(pub){
-                            pub = false;
-                            db.collection("Users").document(currentUserId)
-                                    .update("Public", pub);
-                            button.setText("Privacy: Private \n Click to Toggle");
-                        }
-                        else{
-                            pub = true;
-                            db.collection("Users").document(currentUserId)
-                                    .update("Public", pub);
-                            button.setText("Privacy: Public \n Click to Toggle");
-                        }
-                    }
-                });
-    }
-
 }

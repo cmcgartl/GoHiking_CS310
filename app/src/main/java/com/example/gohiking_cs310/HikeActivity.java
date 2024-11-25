@@ -21,6 +21,9 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.util.List;
+import java.util.Map;
+
 public class HikeActivity extends AppCompatActivity {
     private FirebaseFirestore db;
 
@@ -29,7 +32,7 @@ public class HikeActivity extends AppCompatActivity {
         setContentView(R.layout.activity_hikeinfo);
         db = FirebaseFirestore.getInstance();
         Intent intent = getIntent();
-        Hike hike = (Hike)getIntent().getSerializableExtra("hikeObject");
+        Hike hike = (Hike) getIntent().getSerializableExtra("hikeObject");
         TextView hikeTitleTextView = findViewById(R.id.text_hike_name);
         if (hike != null) {
             Log.d("HikeActivity", "Hike details loaded: " + hike.getName());
@@ -49,7 +52,9 @@ public class HikeActivity extends AppCompatActivity {
         addHike.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                addCustomHike(hike);
+                EditText AddHike = findViewById(R.id.editTextAddHike);
+                String listToUpdate = AddHike.getText().toString().trim();
+                addCustomHike(hike,listToUpdate);
             }
         });
 
@@ -78,7 +83,8 @@ public class HikeActivity extends AppCompatActivity {
             return;
         }
         StringBuilder hikeDetails = new StringBuilder("Difficulty: " + hike.getDifficulty() + "\n" + "Trail Conditions: ");
-        if (hike.getTrailConditions() != "") hikeDetails.append(hike.getTrailConditions()).append("\n");
+        if (hike.getTrailConditions() != "")
+            hikeDetails.append(hike.getTrailConditions()).append("\n");
         else hikeDetails.append("Trail Conditions not available.\n");
         if (hike.getRatings() != null && !hike.getRatings().isEmpty()) {
             int numRatings = hike.getRatings().size();
@@ -92,16 +98,14 @@ public class HikeActivity extends AppCompatActivity {
             }
             double averageRating = totalRating / numRatings;
             hikeDetails.append("Average Rating: ").append(averageRating).append("\n");
-        }
-        else hikeDetails.append("No ratings yet.\n");
+        } else hikeDetails.append("No ratings yet.\n");
         hikeDetails.append("Reviews: ");
         if (hike.getReviews() != null && !hike.getReviews().isEmpty()) {
             hikeDetails.append("\n");
             for (String review : hike.getReviews()) {
                 hikeDetails.append(review).append("\n");
             }
-        }
-        else hikeDetails.append("No reviews yet.\n");
+        } else hikeDetails.append("No reviews yet.\n");
         hikeDetails.append("Amenities: \n" +
                 "Bathrooms: " + (hike.isBathrooms() ? "Yes" : "No") + "\n" +
                 "Parking: " + (hike.isParking() ? "Yes" : "No") + "\n" +
@@ -118,23 +122,41 @@ public class HikeActivity extends AppCompatActivity {
                 .show();
     }
 
-    public void addCustomHike(Hike hike) {
+    public void addCustomHike(Hike hike, String listName) {
         String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        Log.d("HikeActivity", "Current User ID: " + currentUserId);
-        if (hike == null) {
-            Log.d("HikeActivity", "Hike object is null, cannot add to custom hikes.");
-            Toast.makeText(HikeActivity.this, "Hike information is missing.", Toast.LENGTH_SHORT).show();
+        if (hike == null || listName == null) {
+            Toast.makeText(HikeActivity.this, "Hike or list information is missing.", Toast.LENGTH_SHORT).show();
             return;
         }
-        db.collection("Users").document(currentUserId)
-                .update("customHikes", FieldValue.arrayUnion(hike.getName()))
-                .addOnSuccessListener(aVoid -> {
-                    Log.d("HikeActivity", hike.getName() + " successfully added to custom hikes list.");
-                    Toast.makeText(HikeActivity.this, hike.getName() + " added to custom hikes list", Toast.LENGTH_SHORT).show();
+        db.collection("Users").document(currentUserId).get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        Map<String, List<String>> customList = (Map<String, List<String>>) documentSnapshot.get("customList");
+                        if (customList == null || !customList.containsKey(listName)) {
+                            Log.d("HikeActivity", "Hike list '" + listName + "' does not exist in user's custom lists.");
+                            Toast.makeText(HikeActivity.this, "Hike list '" + listName + "' does not exist.", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                        List<String> hikeList = customList.get(listName);
+                        if (!hikeList.contains(hike.getName())) {
+                            hikeList.add(hike.getName());
+                            db.collection("Users").document(currentUserId)
+                                    .update("customList", customList)
+                                    .addOnSuccessListener(aVoid -> {
+                                        Toast.makeText(HikeActivity.this, hike.getName() + " added to " + listName, Toast.LENGTH_SHORT).show();
+                                    })
+                                    .addOnFailureListener(e -> {
+                                        Toast.makeText(HikeActivity.this, "Failed to update hike list.", Toast.LENGTH_SHORT).show();
+                                    });
+                        } else {
+                            Toast.makeText(HikeActivity.this, hike.getName() + " is already in " + listName, Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        Toast.makeText(HikeActivity.this, "Failed to find user information.", Toast.LENGTH_SHORT).show();
+                    }
                 })
                 .addOnFailureListener(e -> {
-                    Log.e("HikeActivity", "Failed to add hike to custom hikes list: " + e.getMessage());
-                    Toast.makeText(HikeActivity.this, "Failed to add hike.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(HikeActivity.this, "Failed to fetch user information.", Toast.LENGTH_SHORT).show();
                 });
     }
 }
