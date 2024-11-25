@@ -25,7 +25,7 @@ public class ProfilePageTests {
     public ActivityScenarioRule<UserActivity> activityRule =
             new ActivityScenarioRule<>(UserActivity.class);
 
-    // TEST #4: Verify Buttons and Text View Visibility
+    // BLACK BOX TEST #4: Verify Buttons and Text View Visibility
     // AUTHOR: Martin Estrin
     @Test
     public void testProfileButtonsAndTextViewVisibility() {
@@ -38,7 +38,7 @@ public class ProfilePageTests {
                 .check(matches(isDisplayed()));
     }
 
-    // TEST #5: Add a Friend and Verify in My Friends Section
+    // BLACK BOX TEST #5: Add a Friend and Verify in My Friends Section
     // AUTHOR: Martin Estrin
     @Test
     public void testAddFriendAndVerifyMyFriends() {
@@ -75,7 +75,7 @@ public class ProfilePageTests {
                 .check(matches(isDisplayed()));
     }
 
-    // TEST #6: Add a Custom List Named "MyFavoriteHikes"
+    // BLACK BOX TEST #6: Add a Custom List Named "MyFavoriteHikes"
     // AUTHOR: Martin Estrin
     @Test
     public void testAddCustomList() {
@@ -105,7 +105,7 @@ public class ProfilePageTests {
 
     }
 
-    // TEST #7: Search for "Griffith Observatory" and Verify Hike Page
+    // BLACK BOX TEST #7: Search for "Griffith Observatory" and Verify Hike Page
     // AUTHOR: Martin Estrin
     @Test
     public void testSearchForHikeAndVerify() {

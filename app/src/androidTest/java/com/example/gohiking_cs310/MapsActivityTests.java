@@ -25,7 +25,7 @@ public class MapsActivityTests {
     public ActivityScenarioRule<MapsActivity> activityRule =
             new ActivityScenarioRule<>(MapsActivity.class);
 
-    // WHITE BOX TEST #1: Login and Signup Buttons and Map Visibility
+    // BLACK BOX TEST #1: Login and Signup Buttons and Map Visibility
     // AUTHOR: Martin Estrin
     @Test
     public void testLoginSignupButtonsAndMapVisibility() {
@@ -43,7 +43,7 @@ public class MapsActivityTests {
     }
 
 
-    // TEST #2: User Login: Navigates to Login page and logs in as martinestrin2@yahoo.com
+    // BLACK BOX TEST #2: User Login: Navigates to Login page and logs in as martinestrin2@yahoo.com
     // AUTHOR: Martin Estrin
     @Test
     public void testNavigateToLoginAndPerformLogin() {
@@ -70,7 +70,7 @@ public class MapsActivityTests {
     }
 
 
-    // TEST #3: User Sign-Up: Navigates to Sign-Up page and creates a new user
+    // BLACK BOX TEST #3: User Sign-Up: Navigates to Sign-Up page and creates a new user
     // AUTHOR: Martin Estrin
     @Test
     public void testNavigateToSignUpAndPerformSignUp() {

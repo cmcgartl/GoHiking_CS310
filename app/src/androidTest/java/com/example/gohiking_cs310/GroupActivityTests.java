@@ -34,7 +34,7 @@ public class GroupActivityTests {
     public ActivityScenarioRule<JoinAndViewGroups> activityRule =
             new ActivityScenarioRule<>(JoinAndViewGroups.class);
 
-    // TEST #8: Verify Buttons in the Group Activities Page
+    // BLACK BOX TEST #8: Verify Buttons in the Group Activities Page
     // AUTHOR: Martin Estrin
     @Test
     public void testGroupActivitiesButtonsVisibility() {
@@ -47,7 +47,7 @@ public class GroupActivityTests {
                 .check(matches(isDisplayed()));
     }
 
-    // TEST #9: Create a New Group
+    // BLACK BOX TEST #9: Create a New Group
     // AUTHOR: Martin Estrin
     @Test
     public void testCreateNewGroup() {

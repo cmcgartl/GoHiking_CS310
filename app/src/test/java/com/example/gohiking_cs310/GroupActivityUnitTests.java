@@ -9,7 +9,7 @@ import static org.junit.Assert.*;
 
 public class GroupActivityUnitTests {
 
-    // BLACK BOX TEST #1: Verify Group Creation with Valid Inputs
+    // WHITE BOX TEST #1: Verify Group Creation with Valid Inputs
     @Test
     public void testCreateGroup_ValidInputs() {
         GroupActivity group = new GroupActivity(
@@ -28,7 +28,7 @@ public class GroupActivityUnitTests {
         assertTrue(group.getParticipants().isEmpty());
     }
 
-    // BLACK BOX TEST #2: Verify Group Activity Constructor
+    // WHITE BOX TEST #2: Verify Group Activity Constructor
     @Test
     public void testGroupActivityConstructor() {
         // Arrange
@@ -56,7 +56,7 @@ public class GroupActivityUnitTests {
         assertEquals("Max participants should match", expectedMaxParticipants, groupActivity.getMaxParticipants());
     }
 
-    // BLACK BOX TEST #3: Verify Participants Cannot Exceed Max Limit
+    // WHITE BOX TEST #3: Verify Participants Cannot Exceed Max Limit
     @Test
     public void testJoinGroup_WhenFull() {
         GroupActivity group = new GroupActivity(
