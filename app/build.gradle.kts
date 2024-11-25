@@ -52,7 +52,16 @@ dependencies {
     implementation(libs.cardview)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
-    androidTestImplementation(libs.espresso.core)
+
+    testImplementation("org.junit.jupiter:junit-jupiter:5.10.0") // JUnit 5 for unit tests
+    testImplementation("org.mockito:mockito-core:5.6.0") // Mockito core
+    testImplementation("org.mockito.kotlin:mockito-kotlin:5.0.0") // Mockito Kotlin
+    testImplementation("org.mockito:mockito-inline:5.6.0") // Mockito for final classes
+
+    androidTestImplementation(libs.ext.junit) // Android JUnit
+    androidTestImplementation(libs.espresso.core) // Espresso for UI testing
+    androidTestImplementation("org.mockito:mockito-android:5.6.0")
+    androidTestImplementation(libs.testng) // Mockito for instrumentation tests
 }
 
 buildscript {
