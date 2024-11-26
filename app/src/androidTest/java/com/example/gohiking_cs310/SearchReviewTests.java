@@ -14,8 +14,11 @@ import static androidx.test.espresso.matcher.ViewMatchers.isRoot;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 
+import static org.hamcrest.CoreMatchers.not;
+
 import android.app.Activity;
 import android.view.View;
+import android.widget.TextView;
 
 import androidx.test.espresso.PerformException;
 import androidx.test.espresso.UiController;
@@ -27,7 +30,9 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.google.firebase.auth.FirebaseAuth;
 
+import org.hamcrest.Description;
 import org.hamcrest.Matcher;
+import org.hamcrest.TypeSafeMatcher;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -290,10 +295,10 @@ public class SearchReviewTests {
                 .perform(click());
 
         // Verify the first review is displayed
-        onView(withText("First review"))
-                .check(matches(isDisplayed()));
+        onView(withId(R.id.review_list_text_view))
+                .check(matches(withSubstring("First review")));
 
-        /*// Submit an updated review
+        // Submit an updated review
         onView(withId(R.id.review_edit_text))
                 .perform(replaceText("Updated review"), closeSoftKeyboard()); // Clear and update the text
         onView(withId(R.id.rating_bar))
@@ -302,17 +307,52 @@ public class SearchReviewTests {
                 .check(matches(isDisplayed()))
                 .perform(click());
 
-        // Verify the updated review is displayed and the first review is replaced
-        onView(withText("Updated review"))
-                .check(matches(isDisplayed()));
-        onView(withText("First review"))
-                .check(doesNotExist());*/
+        // Navigate back to the hike details
+        onView(withId(R.id.buttonBackToHike))
+                .check(matches(isDisplayed()))
+                .perform(click());
+
+        // Navigate back to the hike details
+        onView(withId(R.id.buttonBackToProfile))
+                .check(matches(isDisplayed()))
+                .perform(click());
+
+        Intents.release();
+        Intents.init();
+
+        // Navigate to the hike details via search
+        onView(withId(R.id.editTextSearchHike))
+                .perform(typeText("Griffith Observatory"), closeSoftKeyboard());
+        onView(withId(R.id.search_button))
+                .perform(click());
+
+        // Wait to ensure the intent is launched
+        onView(isRoot()).perform(waitFor(1000));
+
+        // Verify HikeActivity is launched
+        intended(hasComponent(HikeActivity.class.getName()));
+
+        // Check if the view in HikeActivity is displayed
+        onView(withId(R.id.text_hike_name)).check(matches(isDisplayed()));
+
+        // Navigate to the Review Activity again to verify updates
+        onView(withId(R.id.buttonReview))
+                .check(matches(isDisplayed()))
+                .perform(click());
+
+        // Verify the updated review is displayed
+        onView(withId(R.id.review_list_text_view))
+                .check(matches(withSubstring("Updated review")));
+
+        // Verify the first review is no longer displayed
+        onView(withId(R.id.review_list_text_view))
+                .check(matches(not(withSubstring("First review"))));
     }
 
     // TEST 15: Search for a Hike, Add a Review, and Verify It Appears in Search Results
     @Test
     public void testSearchAndAddReview() {
-        // Log in the user
+        // Log in the user programmatically using FirebaseAuth
         activityRule.getScenario().onActivity(activity -> {
             FirebaseAuth.getInstance().signInWithEmailAndPassword("martinestrin2@yahoo.com", "WHITEBOXTEST2")
                     .addOnCompleteListener(task -> {
@@ -323,50 +363,90 @@ public class SearchReviewTests {
         });
         activityRule.getScenario().recreate();
 
-
-        onView(withId(R.id.search_button))
-                .check(matches(isDisplayed()))
-                .perform(click());
-
+        // Navigate to the hike details via search
         onView(withId(R.id.editTextSearchHike))
                 .perform(typeText("Griffith Observatory"), closeSoftKeyboard());
         onView(withId(R.id.search_button))
-                .check(matches(isDisplayed()))
                 .perform(click());
 
+        // Wait to ensure the intent is launched
+        onView(isRoot()).perform(waitFor(1000));
+
+        // Verify HikeActivity is launched
+        intended(hasComponent(HikeActivity.class.getName()));
+
+        // Verify the hike name is displayed
         onView(withText("Griffith Observatory"))
                 .check(matches(isDisplayed()));
 
-
+        // Navigate to the Review Activity
         onView(withId(R.id.buttonReview))
                 .check(matches(isDisplayed()))
                 .perform(click());
 
-        //Add a review for the hike
+        // Add a review for the hike
         onView(withId(R.id.review_edit_text))
-                .perform(typeText("Stunning views, must visit!"), closeSoftKeyboard());
+                .perform(replaceText("Stunning views, must visit!"), closeSoftKeyboard()); // Clear and type a new review
         onView(withId(R.id.rating_bar))
                 .perform(click()); // Assume this sets a 5-star rating
         onView(withId(R.id.submit_review_button))
                 .check(matches(isDisplayed()))
                 .perform(click());
 
-        // Verify that the review is displayed in the review list
-        onView(withText("Stunning views, must visit!"))
-                .check(matches(isDisplayed()));
-
+        // Navigate back to the hike details
         onView(withId(R.id.buttonBackToHike))
                 .check(matches(isDisplayed()))
                 .perform(click());
 
-        onView(withId(R.id.editTextSearchHike))
-                .perform(typeText("Griffith Observatory"), closeSoftKeyboard());
-        onView(withId(R.id.search_button))
+        // Navigate back to the hike details
+        onView(withId(R.id.buttonBackToProfile))
                 .check(matches(isDisplayed()))
                 .perform(click());
 
-        onView(withText("Stunning views, must visit!"))
+        Intents.release();
+        Intents.init();
+
+        // Navigate to the hike details via search
+        onView(withId(R.id.editTextSearchHike))
+                .perform(typeText("Griffith Observatory"), closeSoftKeyboard());
+        onView(withId(R.id.search_button))
+                .perform(click());
+
+        // Wait to ensure the intent is launched
+        onView(isRoot()).perform(waitFor(1000));
+
+        // Verify HikeActivity is launched
+        intended(hasComponent(HikeActivity.class.getName()));
+
+        // Verify the hike name is displayed
+        onView(withText("Griffith Observatory"))
                 .check(matches(isDisplayed()));
+
+        // Navigate to the Review Activity
+        onView(withId(R.id.buttonReview))
+                .check(matches(isDisplayed()))
+                .perform(click());
+
+        // Use the custom matcher again to verify the review persists
+        onView(withId(R.id.review_list_text_view))
+                .check(matches(withSubstring("Stunning views, must visit!")));
     }
 
+    public static Matcher<View> withSubstring(final String substring) {
+        return new TypeSafeMatcher<View>() {
+            @Override
+            public boolean matchesSafely(View view) {
+                if (!(view instanceof TextView)) {
+                    return false;
+                }
+                String text = ((TextView) view).getText().toString();
+                return text.contains(substring);
+            }
+
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("with substring: " + substring);
+            }
+        };
+    }
 }
