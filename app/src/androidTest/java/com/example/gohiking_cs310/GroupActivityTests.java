@@ -35,20 +35,15 @@ public class GroupActivityTests {
             new ActivityScenarioRule<>(JoinAndViewGroups.class);
 
     // BLACK BOX TEST #8: Verify Buttons in the Group Activities Page
-    // AUTHOR: Martin Estrin
     @Test
     public void testGroupActivitiesButtonsVisibility() {
-        // Verify "Create New Group" button is displayed
         onView(withId(R.id.creategroup))
                 .check(matches(isDisplayed()));
-
-        // Verify "Go Home" button is displayed
         onView(withId(R.id.go_home))
                 .check(matches(isDisplayed()));
     }
 
     // BLACK BOX TEST #9: Create a New Group
-    // AUTHOR: Martin Estrin
     @Test
     public void testCreateNewGroup() {
         activityRule.getScenario().onActivity(activity -> {

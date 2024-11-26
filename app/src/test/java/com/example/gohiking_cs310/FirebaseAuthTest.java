@@ -12,7 +12,6 @@ import org.junit.Test;
 public class FirebaseAuthTest {
 
     //WHITE BOX TEST #1: Check if a user exists in the system
-    //AUTHOR: MARTY ESTRIN
     @Test
     public void testCheckIfUserExists() {
         FirebaseAuth mockFirebaseAuth = mock(FirebaseAuth.class);
@@ -28,7 +27,6 @@ public class FirebaseAuthTest {
     }
 
     //WHITE BOX TEST #2: Check if a user does not exist in the system
-    //AUTHOR: MARTY ESTRIN
     @Test
     public void testCheckIfUserDoesNotExist() {
         FirebaseAuth mockFirebaseAuth = mock(FirebaseAuth.class);

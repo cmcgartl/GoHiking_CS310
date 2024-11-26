@@ -26,7 +26,6 @@ public class MapsActivityTests {
             new ActivityScenarioRule<>(MapsActivity.class);
 
     // BLACK BOX TEST #1: Login and Signup Buttons and Map Visibility
-    // AUTHOR: Martin Estrin
     @Test
     public void testLoginSignupButtonsAndMapVisibility() {
         // Check if the Login button is displayed
@@ -44,7 +43,6 @@ public class MapsActivityTests {
 
 
     // BLACK BOX TEST #2: User Login: Navigates to Login page and logs in as martinestrin2@yahoo.com
-    // AUTHOR: Martin Estrin
     @Test
     public void testNavigateToLoginAndPerformLogin() {
         // Navigate from MapsActivity to Login activity
@@ -52,26 +50,18 @@ public class MapsActivityTests {
                 .check(matches(isDisplayed()))
                 .perform(click());
 
-        // Verify navigation to Login activity
         onView(withId(R.id.editTextUsername))
                 .check(matches(isDisplayed()));
-
-        // Enter email in the email field
         onView(withId(R.id.editTextUsername))
                 .perform(typeText("martinestrin2@yahoo.com"), closeSoftKeyboard());
-
-        // Enter password in the password field
         onView(withId(R.id.editTextPassword))
                 .perform(typeText("WHITEBOXTEST2"), closeSoftKeyboard());
-
-        // Click the Login button
         onView(withId(R.id.buttonLogin))
                 .perform(click());
     }
 
 
     // BLACK BOX TEST #3: User Sign-Up: Navigates to Sign-Up page and creates a new user
-    // AUTHOR: Martin Estrin
     @Test
     public void testNavigateToSignUpAndPerformSignUp() {
         // Navigate from MapsActivity to SignUp activity
@@ -79,23 +69,14 @@ public class MapsActivityTests {
                 .check(matches(isDisplayed()))
                 .perform(click());
 
-        // Verify navigation to SignUp activity
         onView(withId(R.id.editTextUsername))
                 .check(matches(isDisplayed()));
-
-        // Enter email in the email field
         onView(withId(R.id.editTextUsername))
                 .perform(typeText("white_box_test_user@example.com"), closeSoftKeyboard());
-
-        // Enter username in the username field
         onView(withId(R.id.username))
                 .perform(typeText("Test User"), closeSoftKeyboard());
-
-        // Enter password in the password field
         onView(withId(R.id.editTextPassword))
                 .perform(typeText("password123"), closeSoftKeyboard());
-
-        // Click the Sign-Up button
         onView(withId(R.id.buttonSignUp))
                 .perform(click());
     }

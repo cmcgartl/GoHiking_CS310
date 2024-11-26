@@ -26,7 +26,6 @@ public class ProfilePageTests {
             new ActivityScenarioRule<>(UserActivity.class);
 
     // BLACK BOX TEST #4: Verify Buttons and Text View Visibility
-    // AUTHOR: Martin Estrin
     @Test
     public void testProfileButtonsAndTextViewVisibility() {
         // Verify "Back" button is displayed
@@ -39,7 +38,6 @@ public class ProfilePageTests {
     }
 
     // BLACK BOX TEST #5: Add a Friend and Verify in My Friends Section
-    // AUTHOR: Martin Estrin
     @Test
     public void testAddFriendAndVerifyMyFriends() {
         activityRule.getScenario().onActivity(activity -> {
@@ -76,7 +74,6 @@ public class ProfilePageTests {
     }
 
     // BLACK BOX TEST #6: Add a Custom List Named "MyFavoriteHikes"
-    // AUTHOR: Martin Estrin
     @Test
     public void testAddCustomList() {
         activityRule.getScenario().onActivity(activity -> {
@@ -89,16 +86,13 @@ public class ProfilePageTests {
         });
         activityRule.getScenario().recreate();
 
-        // Step 1: Navigate to the "Manage Custom Lists" section
         onView(withId(R.id.buttonCustomList))
                 .check(matches(isDisplayed()))
                 .perform(click());
 
-        // Step 2: Enter the name of the new custom list
         onView(withId(R.id.editTextCreateList))
                 .perform(typeText("MyFavoriteHikes"), closeSoftKeyboard());
 
-        // Step 3: Click the "Create New List" button
         onView(withId(R.id.buttonCreateList))
                 .check(matches(isDisplayed()))
                 .perform(click());
@@ -106,7 +100,6 @@ public class ProfilePageTests {
     }
 
     // BLACK BOX TEST #7: Search for "Griffith Observatory" and Verify Hike Page
-    // AUTHOR: Martin Estrin
     @Test
     public void testSearchForHikeAndVerify() {
         activityRule.getScenario().onActivity(activity -> {

@@ -10,7 +10,6 @@ import static org.junit.Assert.*;
 public class GroupActivityUnitTests {
 
     // WHITE BOX TEST #3: Verify Group Creation with Valid Inputs
-    //Marty Estrin
     @Test
     public void testCreateGroup_ValidInputs() {
         GroupActivity group = new GroupActivity(
@@ -30,7 +29,6 @@ public class GroupActivityUnitTests {
     }
 
     // WHITE BOX TEST #4: Verify Group Activity Constructor
-    //Marty Estrin
     @Test
     public void testGroupActivityConstructor() {
         // Arrange
@@ -40,7 +38,6 @@ public class GroupActivityUnitTests {
         Date expectedTime = new Date();
         int expectedMaxParticipants = 10;
 
-        // Act
         GroupActivity groupActivity = new GroupActivity(
                 expectedActivityID,
                 expectedTitle,
@@ -49,7 +46,6 @@ public class GroupActivityUnitTests {
                 expectedMaxParticipants
         );
 
-        // Assert
         assertNotNull("Participants list should not be null", groupActivity.getParticipants());
         assertEquals("Activity ID should match", expectedActivityID, groupActivity.getActivityID());
         assertEquals("Title should match", expectedTitle, groupActivity.getTitle());
@@ -59,7 +55,6 @@ public class GroupActivityUnitTests {
     }
 
     // WHITE BOX TEST #5: Verify Participants Cannot Exceed Max Limit
-    //Marty Estrin
     @Test
     public void testJoinGroup_WhenFull() {
         GroupActivity group = new GroupActivity(
@@ -75,7 +70,6 @@ public class GroupActivityUnitTests {
         participants.add("user2");
         participants.add("user3");
 
-        // Simulate a new participant trying to join
         if (participants.size() >= group.getMaxParticipants()) {
             assertEquals(3, participants.size());
             assertFalse(participants.contains("user4"));
