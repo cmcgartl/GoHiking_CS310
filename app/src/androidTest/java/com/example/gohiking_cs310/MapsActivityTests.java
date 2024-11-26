@@ -6,9 +6,11 @@ import static androidx.test.espresso.action.ViewActions.closeSoftKeyboard;
 import static androidx.test.espresso.action.ViewActions.typeText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibility;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 
+import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
@@ -47,19 +49,20 @@ public class MapsActivityTests {
     public void testNavigateToLoginAndPerformLogin() {
         // Navigate from MapsActivity to Login activity
         onView(withId(R.id.button_login))
-                .check(matches(isDisplayed()))
+                .check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE))) // Ensure visible
                 .perform(click());
 
         onView(withId(R.id.editTextUsername))
-                .check(matches(isDisplayed()));
-        onView(withId(R.id.editTextUsername))
+                .check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE))) // Ensure username field visible
                 .perform(typeText("martinestrin2@yahoo.com"), closeSoftKeyboard());
+
         onView(withId(R.id.editTextPassword))
                 .perform(typeText("WHITEBOXTEST2"), closeSoftKeyboard());
+
         onView(withId(R.id.buttonLogin))
+                .check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE))) // Ensure login button visible
                 .perform(click());
     }
-
 
     // BLACK BOX TEST #3: User Sign-Up: Navigates to Sign-Up page and creates a new user
     @Test

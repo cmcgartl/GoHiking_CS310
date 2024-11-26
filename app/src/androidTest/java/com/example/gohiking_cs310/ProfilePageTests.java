@@ -5,15 +5,18 @@ import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.closeSoftKeyboard;
 import static androidx.test.espresso.action.ViewActions.typeText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.matcher.RootMatchers.isDialog;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
+import java.util.concurrent.CountDownLatch;
 
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.google.firebase.auth.FirebaseAuth;
 
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -39,15 +42,24 @@ public class ProfilePageTests {
 
     // BLACK BOX TEST #5: Add a Friend and Verify in My Friends Section
     @Test
-    public void testAddFriendAndVerifyMyFriends() {
+    public void testAddFriendAndVerifyMyFriends() throws InterruptedException {
+        // Synchronize user login
+        CountDownLatch signInLatch = new CountDownLatch(1);
+
         activityRule.getScenario().onActivity(activity -> {
             FirebaseAuth.getInstance().signInWithEmailAndPassword("martinestrin2@yahoo.com", "WHITEBOXTEST2")
                     .addOnCompleteListener(task -> {
-                        if (!task.isSuccessful()) {
-                            throw new AssertionError("Failed to log in user for testing.");
+                        if (task.isSuccessful()) {
+                            signInLatch.countDown();
+                        } else {
+                            throw new AssertionError("Failed to log in user for testing: " + task.getException());
                         }
                     });
         });
+
+        signInLatch.await(); // Wait for sign-in to complete
+
+        // Recreate activity to load authenticated user data
         activityRule.getScenario().recreate();
 
         // Enter email in the "Add Friend" field
@@ -66,10 +78,12 @@ public class ProfilePageTests {
 
         // Verify the "Your Friends" dialog is displayed
         onView(withText("Your Friends"))
+                .inRoot(isDialog()) // Ensure we're checking the dialog
                 .check(matches(isDisplayed()));
 
-        // Check that "dougpete@gmail.com" appears in the list of friends
+        // Verify "dougpete@gmail.com" is displayed in the dialog
         onView(withText("dougpete@gmail.com"))
+                .inRoot(isDialog()) // Ensure the check is specific to the dialog
                 .check(matches(isDisplayed()));
     }
 

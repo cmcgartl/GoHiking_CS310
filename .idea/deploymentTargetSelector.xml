@@ -2,35 +2,21 @@
 <project version="4">
   <component name="deploymentTargetSelector">
     <selectionStates>
-      <SelectionState runConfigName="app">
-        <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2024-11-25T01:38:57.452096Z">
-          <Target type="DEFAULT_BOOT">
-            <handle>
-              <DeviceId pluginId="LocalEmulator" identifier="path=/Users/connor/.android/avd/Medium_Phone_API_35.avd" />
-            </handle>
-          </Target>
-        </DropdownSelection>
-        <DialogSelection />
-      </SelectionState>
-      <SelectionState runConfigName="SearchReviewTests">
+      <SelectionState runConfigName="ProfilePageTests">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-<<<<<<< HEAD
-=======
-      <SelectionState runConfigName="testSearchWithInvalidInput()">
-        <option name="selectionMode" value="DROPDOWN" />
-      </SelectionState>
-      <SelectionState runConfigName="Tests in 'com.example.gohiking_cs310'">
+      <SelectionState runConfigName="ReviewActivity">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
       <SelectionState runConfigName="MapsActivityTests">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="ProfilePageTests">
+      <SelectionState runConfigName="testNavigateToLoginAndPerformLogin()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
->>>>>>> 06c53e5aaf2384433f851a1fca0e5c94bd721b2a
+      <SelectionState runConfigName="testLoginSignupButtonsAndMapVisibility()">
+        <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
     </selectionStates>
   </component>
 </project>
