@@ -28,30 +28,23 @@ public class GroupActivityUnitTests {
         assertTrue(group.getParticipants().isEmpty());
     }
 
-    // WHITE BOX TEST #4: Verify Group Activity Constructor
+    // WHITE BOX TEST #4: Verify Updating Time in GroupActivity
     @Test
-    public void testGroupActivityConstructor() {
-        // Arrange
-        String expectedActivityID = "testID123";
-        String expectedTitle = "Morning Hike";
-        String expectedLocation = "Griffith Park";
-        Date expectedTime = new Date();
-        int expectedMaxParticipants = 10;
+    public void testUpdateTimeInGroupActivity() {
+        String activityID = "testID456";
+        String title = "Evening Walk";
+        String location = "Central Park";
+        Date initialTime = new Date();
+        int maxParticipants = 5;
 
-        GroupActivity groupActivity = new GroupActivity(
-                expectedActivityID,
-                expectedTitle,
-                expectedLocation,
-                expectedTime,
-                expectedMaxParticipants
-        );
+        GroupActivity groupActivity = new GroupActivity(activityID, title, location, initialTime, maxParticipants);
 
-        assertNotNull("Participants list should not be null", groupActivity.getParticipants());
-        assertEquals("Activity ID should match", expectedActivityID, groupActivity.getActivityID());
-        assertEquals("Title should match", expectedTitle, groupActivity.getTitle());
-        assertEquals("Location should match", expectedLocation, groupActivity.getLocation());
-        assertEquals("Time should match", expectedTime, groupActivity.getTime());
-        assertEquals("Max participants should match", expectedMaxParticipants, groupActivity.getMaxParticipants());
+        Date newTime = new Date(initialTime.getTime() + 3600000); // 1 hour later
+        groupActivity.setTime(newTime);
+
+        assertNotNull("Time should not be null after update.", groupActivity.getTime());
+        assertEquals("Time should be updated to the new value.", newTime, groupActivity.getTime());
+        assertNotEquals("Time should not match the initial value after update.", initialTime, groupActivity.getTime());
     }
 
     // WHITE BOX TEST #5: Verify Participants Cannot Exceed Max Limit

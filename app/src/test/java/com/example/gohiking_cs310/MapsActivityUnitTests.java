@@ -14,7 +14,7 @@ public class MapsActivityUnitTests {
     // WHITE BOX TEST #6: Verify Map Marker Creation
     @Test
     public void testCreateMapMarker() {
-        LatLng expectedLocation = new LatLng(34.1341, -118.3215); // Example coordinates for Griffith Observatory
+        LatLng expectedLocation = new LatLng(34.1341, -118.3215);
         String expectedTitle = "Griffith Observatory";
         MarkerOptions marker = new MarkerOptions()
                 .position(expectedLocation)

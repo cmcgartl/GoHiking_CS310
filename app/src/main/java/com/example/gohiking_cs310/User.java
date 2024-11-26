@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 public class User {
-    private String userId;
+    public String userId;
     private String email;
     private List<String> friends;
     private List<String> customHikes;

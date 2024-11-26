@@ -23,11 +23,11 @@ public class ReviewActivity extends AppCompatActivity {
     private FirebaseFirestore db;
     private String hikeId;
     private TextView reviewListTextView;
-    private RatingBar ratingBar;
-    private EditText reviewEditText;
+    RatingBar ratingBar;
+    EditText reviewEditText;
     private ArrayList<String> reviews = new ArrayList<>();
     private ArrayList<Long> ratings = new ArrayList<>();
-    private int userReviewIndex = -1;
+    int userReviewIndex = -1;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
