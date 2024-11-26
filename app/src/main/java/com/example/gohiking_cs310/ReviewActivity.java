@@ -25,13 +25,8 @@ public class ReviewActivity extends AppCompatActivity {
     private TextView reviewListTextView;
     RatingBar ratingBar;
     EditText reviewEditText;
-<<<<<<< HEAD
-    private ArrayList<String> reviews = new ArrayList<>();
-    private ArrayList<Long> ratings = new ArrayList<>();
-=======
     ArrayList<String> reviews = new ArrayList<>();
     ArrayList<Long> ratings = new ArrayList<>();
->>>>>>> 06c53e5aaf2384433f851a1fca0e5c94bd721b2a
     int userReviewIndex = -1;
 
     @Override
