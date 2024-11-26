@@ -333,7 +333,7 @@ public class UserActivity extends AppCompatActivity {
                                 startActivity(intent);
                             }
                         } else {
-                            Toast.makeText(UserActivity.this, "No hike found", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(UserActivity.this, "No hike found", Toast.LENGTH_LONG).show();
                         }
                     }
                 });

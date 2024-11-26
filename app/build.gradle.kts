@@ -52,15 +52,20 @@ dependencies {
     implementation(libs.cardview)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
-
+    androidTestImplementation("androidx.test.espresso:espresso-intents:3.5.1")
+    testImplementation("org.hamcrest:hamcrest-library:2.2")
     testImplementation("org.junit.jupiter:junit-jupiter:5.10.0") // JUnit 5 for unit tests
     testImplementation("org.mockito:mockito-core:5.6.0") // Mockito core
     testImplementation("org.mockito.kotlin:mockito-kotlin:5.0.0") // Mockito Kotlin
-
+    testImplementation("org.mockito:mockito-core:4.11.0")
+    testImplementation("org.mockito:mockito-inline:4.11.0") // For mocking final classes if needed
+    androidTestImplementation("androidx.test.ext:junit:1.1.5")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
     androidTestImplementation(libs.ext.junit) // Android JUnit
     androidTestImplementation(libs.espresso.core) // Espresso for UI testing
     androidTestImplementation("org.mockito:mockito-android:5.6.0")
     androidTestImplementation(libs.testng) // Mockito for instrumentation tests
+
 }
 
 buildscript {

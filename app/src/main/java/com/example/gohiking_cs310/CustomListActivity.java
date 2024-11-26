@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 public class CustomListActivity extends AppCompatActivity {
-    private FirebaseFirestore db;
+    FirebaseFirestore db;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,7 +57,7 @@ public class CustomListActivity extends AppCompatActivity {
         });
     }
 
-    private void createCustomList(String ListName) {
+    void createCustomList(String ListName) {
         String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
         if (ListName == null) {
             Toast.makeText(CustomListActivity.this, "List name is missing.", Toast.LENGTH_SHORT).show();
@@ -103,7 +103,7 @@ public class CustomListActivity extends AppCompatActivity {
                 });
     }
 
-    private void togglePrivacy(String list){
+    void togglePrivacy(String list){
         String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
         if (list == null) {
             Toast.makeText(CustomListActivity.this, "List name is missing.", Toast.LENGTH_SHORT).show();

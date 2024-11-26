@@ -23,6 +23,9 @@ public class Hike implements Serializable {
 
     public Hike() {}
 
+    public Hike(String Name){
+        this.name = Name;
+    }
     public Hike(String id, String name, int difficulty, double lat, double lng, boolean bathrooms,
                 boolean parking, ArrayList<Double> ratings, ArrayList<String> reviews,
                 String trailConditions, boolean trailMarkers, boolean trashCans,
