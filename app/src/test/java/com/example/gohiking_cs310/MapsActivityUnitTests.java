@@ -11,7 +11,7 @@ import static org.junit.Assert.assertNotNull;
 public class MapsActivityUnitTests {
 
 
-    // WHITE BOX TEST #4: Verify Map Marker Creation
+    // WHITE BOX TEST #6: Verify Map Marker Creation
     @Test
     public void testCreateMapMarker() {
         // Arrange
