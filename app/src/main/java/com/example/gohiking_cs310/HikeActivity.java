@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 public class HikeActivity extends AppCompatActivity {
-    private FirebaseFirestore db;
+    FirebaseFirestore db;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
