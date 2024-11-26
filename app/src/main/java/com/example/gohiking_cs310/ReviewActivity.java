@@ -23,11 +23,11 @@ public class ReviewActivity extends AppCompatActivity {
     private FirebaseFirestore db;
     private String hikeId;
     private TextView reviewListTextView;
-    private RatingBar ratingBar;
-    private EditText reviewEditText;
-    private ArrayList<String> reviews = new ArrayList<>();
-    private ArrayList<Long> ratings = new ArrayList<>();
-    private int userReviewIndex = -1;
+    RatingBar ratingBar;
+    EditText reviewEditText;
+    ArrayList<String> reviews = new ArrayList<>();
+    ArrayList<Long> ratings = new ArrayList<>();
+    int userReviewIndex = -1;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -53,7 +53,7 @@ public class ReviewActivity extends AppCompatActivity {
         submitButton.setOnClickListener(v -> submitReview());
     }
 
-    private void loadReviews() {
+    void loadReviews() {
         db.collection("Hikes").document(hikeId).get().addOnSuccessListener(documentSnapshot -> {
             if (documentSnapshot.exists()) {
                 reviews = (ArrayList<String>) documentSnapshot.get("Reviews");
@@ -75,7 +75,7 @@ public class ReviewActivity extends AppCompatActivity {
         });
     }
 
-    private void displayReviews() {
+    void displayReviews() {
         StringBuilder reviewsText = new StringBuilder();
         reviewsText.append("User Reviews and Ratings: \n\n");
         int i = 0;
@@ -97,7 +97,7 @@ public class ReviewActivity extends AppCompatActivity {
     }
 
 
-    private void displayAverageRating() {
+    void displayAverageRating() {
         if (ratings != null && !ratings.isEmpty()) {
             Long total = 0L;
             for (Long rating : ratings) {
@@ -111,7 +111,7 @@ public class ReviewActivity extends AppCompatActivity {
         }
     }
 
-    private void submitReview() {
+    void submitReview() {
         String reviewText = reviewEditText.getText().toString().trim();
         float rating = ratingBar.getRating();
         String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
@@ -140,4 +140,9 @@ public class ReviewActivity extends AppCompatActivity {
             Toast.makeText(this, "Please provide both a review and rating", Toast.LENGTH_SHORT).show();
         }
     }
+
+    public void setFirestore(FirebaseFirestore firestore) {
+        this.db = firestore;
+    }
+
 }
