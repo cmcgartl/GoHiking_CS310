@@ -186,7 +186,6 @@ public class UserActivity extends AppCompatActivity {
         hikeAdapter.notifyDataSetChanged();
     }
 
-
     private void queryUserByEmail(String email) {
         String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
         db.collection("Users")
@@ -266,15 +265,17 @@ public class UserActivity extends AppCompatActivity {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Your Friends");
 
-
+        String friendsEmail = null;
         String[] friendsArray = new String[friendsList.size()];
         for (int i = 0; i < friendsList.size(); i++) {
-            friendsArray[i] = friendsList.get(i).second; // Get the email part of the pair
+            friendsEmail = friendsList.get(i).second;
+            friendsArray[i] = friendsEmail;
         }
 
+        String finalFriendsEmail = friendsEmail;
         builder.setItems(friendsArray, (dialog, which) -> {
             String selectedFriendId = friendsList.get(which).first;
-            showFriendsLists(selectedFriendId);
+            showFriendOptions(finalFriendsEmail, selectedFriendId);
         });
 
         builder.setPositiveButton("OK", (dialog, which) -> dialog.dismiss());
@@ -299,7 +300,7 @@ public class UserActivity extends AppCompatActivity {
                                 String name = document.getString("Name") != null ? document.getString("Name") : "Unknown";
                                 Boolean parking = document.getBoolean("Parking") != null ? document.getBoolean("Parking") : false;
                                 ArrayList<Double> ratings = document.get("Ratings") != null ? (ArrayList<Double>) document.get("Ratings") : new ArrayList<>();
-                                ArrayList<String> reviews = document.get("Reviews") != null ? (ArrayList<String>) document.get("Reviews") : new ArrayList<>();
+                                ArrayList<Review> reviews = document.get("Reviews") != null ? (ArrayList<Review>) document.get("Reviews") : new ArrayList<>();
                                 String conditions = document.getString("Trail Conditions") != null ? document.getString("Trail Conditions") : "Not available";
                                 Boolean markers = document.getBoolean("Trail Markers") != null ? document.getBoolean("Trail Markers") : false;
                                 Boolean trash = document.getBoolean("Trash Cans") != null ? document.getBoolean("Trash Cans") : false;
@@ -338,16 +339,31 @@ public class UserActivity extends AppCompatActivity {
                     }
                 });
     }
-
+    private void showFriendOptions(String friendEmail, String selectedFriendId){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Please select an option");
+        String[] options = new String[2];
+        options[0] = "View " + friendEmail + "'s reviews";
+        options[1] = "View " + friendEmail + "'s custom lists";
+        builder.setItems(options, (dialog, which) -> {
+            if(which == 0){
+                showFriendsReviews(friendEmail, selectedFriendId);
+            }
+            else {
+                showFriendsLists(selectedFriendId);
+            }
+        });
+        builder.setPositiveButton("OK", (dialog, which) -> dialog.dismiss());
+        builder.create().show();
+    }
     private void showFriendsLists(String userId){
         db.collection("Users").document(userId).get()
-
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists()) {
                         String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
                         Map<String, List<String>> customList = (Map<String, List<String>>) documentSnapshot.get("customList");
                         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                        if(userId == currentUserId){
+                        if(userId.equals(currentUserId)){
                             builder.setTitle("Your List");
                         }
                         else {
@@ -367,6 +383,45 @@ public class UserActivity extends AppCompatActivity {
                         builder.create().show();
                     }
                 });
+    }
+
+    private void showFriendsReviews(String friendEmail, String userId){
+        db.collection("Users").document(userId).get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        List<Map<String, Object>> reviewList = (List<Map<String, Object>>) documentSnapshot.get("userReviews");
+                        StringBuilder userReviews = new StringBuilder();
+                        if (reviewList == null || reviewList.isEmpty()) {
+                            userReviews.append("No hikes in this list!");
+                        }
+                        else {
+                            for (Map<String, Object> reviewMap : reviewList) {
+                                String hikeName = (String) reviewMap.get("hikeName");
+                                String reviewText = (String) reviewMap.get("reviewText");
+                                Double rating = (Double) reviewMap.get("rating");
+
+                                if (hikeName != null && reviewText != null) {
+                                    assert rating != null;
+                                    userReviews.append("Hike Name: ").append(hikeName)
+                                            .append("\nReview: ").append(reviewText)
+                                            .append("\nRating: ").append(rating)
+                                            .append("\n\n");
+                                }
+                            }
+                        }
+
+                        new android.app.AlertDialog.Builder(UserActivity.this)
+                                .setTitle(friendEmail+ "'s reviews")
+                                .setMessage(userReviews.toString())
+                                .setPositiveButton("Close", (dialog, which) -> dialog.dismiss())
+                                .show();
+                    } else {
+                        Toast.makeText(UserActivity.this, "No custom hikes added.", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .addOnFailureListener(e ->
+                        Toast.makeText(UserActivity.this, "Failed to fetch custom hikes.", Toast.LENGTH_SHORT).show()
+                );
     }
 
     private void showCustomHikes(String listName, String userId) {

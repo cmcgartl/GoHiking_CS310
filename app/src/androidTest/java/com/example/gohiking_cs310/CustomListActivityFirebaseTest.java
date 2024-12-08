@@ -1,6 +1,5 @@
 package com.example.gohiking_cs310;
 
-
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.firebase.auth.FirebaseAuth;

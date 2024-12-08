@@ -102,8 +102,8 @@ public class HikeActivity extends AppCompatActivity {
         hikeDetails.append("Reviews: ");
         if (hike.getReviews() != null && !hike.getReviews().isEmpty()) {
             hikeDetails.append("\n");
-            for (String review : hike.getReviews()) {
-                hikeDetails.append(review).append("\n");
+            for (Review review : hike.getReviews()) {
+                hikeDetails.append(review.getReviewText()).append("\n");
             }
         } else hikeDetails.append("No reviews yet.\n");
         hikeDetails.append("Amenities: \n" +

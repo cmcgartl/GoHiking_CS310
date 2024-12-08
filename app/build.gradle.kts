@@ -50,6 +50,7 @@ dependencies {
     implementation(libs.constraintlayout)
     implementation("com.google.android.gms:play-services-maps:19.0.0")
     implementation(libs.cardview)
+    implementation(libs.places)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation("androidx.test.espresso:espresso-intents:3.5.1")
@@ -65,6 +66,7 @@ dependencies {
     androidTestImplementation(libs.espresso.core) // Espresso for UI testing
     androidTestImplementation("org.mockito:mockito-android:5.6.0")
     androidTestImplementation(libs.testng) // Mockito for instrumentation tests
+    implementation ("com.google.android.gms:play-services-maps:18.1.0")
 
 }
 

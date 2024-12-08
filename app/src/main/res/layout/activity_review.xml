@@ -19,24 +19,26 @@
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/review_container"/>
 
-    <TextView
-        android:id="@+id/review_list_text_view"
+    <FrameLayout
+        android:id="@+id/review_container"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="16dp"
+        android:layout_height="300dp"
         android:background="#BFF0F0F0"
-        android:padding="16dp"
-        android:text="No reviews yet."
-        android:textColor="#000000"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/average_rating_text_view"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/average_rating_text_view" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/rating_container">
+            <ListView
+                android:id="@+id/review_list_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:padding="16dp"
+                android:divider="@android:color/darker_gray"
+                android:dividerHeight="1dp" />
+    </FrameLayout>
 
     <LinearLayout
         android:id="@+id/rating_container"
@@ -51,7 +53,7 @@
         android:padding="16dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/review_list_text_view">
+        app:layout_constraintTop_toBottomOf="@+id/review_container">
 
         <TextView
             android:id="@+id/rate_hike_text"

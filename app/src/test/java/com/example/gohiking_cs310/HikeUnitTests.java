@@ -16,9 +16,7 @@ public class HikeUnitTests {
         ratings.add(4.5);
         ratings.add(3.0);
 
-        ArrayList<String> reviews = new ArrayList<>();
-        reviews.add("Beautiful trail!");
-        reviews.add("Could use better maintenance.");
+        ArrayList<Review> reviews = new ArrayList<>();
 
         hike = new Hike("123", "Griffith Park Trail", 3, 34.1341, -118.3215, true,
                 true, ratings, reviews, "Dry", true, true, true, false);
@@ -73,7 +71,7 @@ public class HikeUnitTests {
         assertEquals(5.0, hike.getRatings().get(2), 0.0001);
         assertEquals(2, hike.getReviews().size());
         assertTrue(hike.getReviews().contains("Beautiful trail!"));
-        hike.getReviews().add("Amazing hike!");
+        //hike.getReviews().add("Amazing hike!");
         assertEquals(3, hike.getReviews().size());
         assertTrue(hike.getReviews().contains("Amazing hike!"));
     }

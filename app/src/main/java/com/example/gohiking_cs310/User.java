@@ -1,20 +1,25 @@
 package com.example.gohiking_cs310;
 
+import android.util.Pair;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import com.example.gohiking_cs310.Review;
 
 public class User {
     public String userId;
     private String email;
     private List<String> friends;
     private List<String> customHikes;
-    private List<String> groupActivities;
+    public List<Review> userReviews;
+    public List<String> groupActivities;
     public Map<String,List<String>> customList;
     public Map<String, Boolean> listPrivacy;
     public String username;
     public Boolean Public;
+
 
     // Constructor
     public User(String userId, String email) {
@@ -26,6 +31,7 @@ public class User {
         this.Public = true;
         this.customList = new HashMap<>();
         this.listPrivacy = new HashMap<>();
+        this.userReviews = new ArrayList<>();
     }
 
     public User(String userId, String email, String username) {
@@ -38,6 +44,7 @@ public class User {
         this.Public = true;
         this.customList = new HashMap<>();
         this.listPrivacy = new HashMap<>();
+        this.userReviews = new ArrayList<>();
     }
 
 
@@ -76,11 +83,11 @@ public class User {
     }
 
 
-    public List<String> getGroupActivities() {
+   /* public List<String> getGroupActivities() {
         return groupActivities;
     }
 
     public void addGroupActivity(String hikeId) {
         groupActivities.add(hikeId);
-    }
+    }*/
 }

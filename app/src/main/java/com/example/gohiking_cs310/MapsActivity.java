@@ -26,6 +26,8 @@ import com.example.gohiking_cs310.databinding.ActivityMapsBinding;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
@@ -101,6 +103,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
+
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
@@ -115,18 +118,42 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         for (QueryDocumentSnapshot document : task.getResult()) {
-                            Hike hike = document.toObject(Hike.class);
+                            try {
+                                // Deserialize the Hike object, ignoring the reviews field
+                                Hike hike = document.toObject(Hike.class);
 
-                            LatLng location = new LatLng(hike.getLat(), hike.getLng());
+                                // Handle the reviews field dynamically
+                                List<?> rawReviews = (List<?>) document.get("reviews");
+                                List<Review> reviews = new ArrayList<>();
+                                if (rawReviews != null) {
+                                    for (Object rawReview : rawReviews) {
+                                        if (rawReview instanceof String) {
+                                            // Handle legacy String reviews
+                                            reviews.add(new Review((String) rawReview, 0, "unknownUser"));
+                                        } else if (rawReview instanceof Map) {
+                                            // Handle new Review objects
+                                            Map<String, Object> reviewMap = (Map<String, Object>) rawReview;
+                                            String reviewText = (String) reviewMap.get("reviewText");
+                                            long rating = (long) reviewMap.get("rating");
+                                            String userId = (String) reviewMap.get("userId");
+                                            reviews.add(new Review(reviewText, rating, userId));
+                                        }
+                                    }
+                                }
+                                hike.setReviews(reviews); // Set the reviews in the hike object
 
+                                // Add a marker for this hike
+                                LatLng location = new LatLng(hike.getLat(), hike.getLng());
+                                Marker marker = mMap.addMarker(new MarkerOptions()
+                                        .position(location)
+                                        .title(hike.getName())
+                                        .snippet("Tap for details"));
 
-                            Marker marker = mMap.addMarker(new MarkerOptions()
-                                    .position(location)
-                                    .title(hike.getName())
-                                    .snippet("Tap for details"));
-
-                            markerHikeMap.put(marker, hike);
-                            HikeIDMap.put(hike.getId(), hike);
+                                markerHikeMap.put(marker, hike);
+                                HikeIDMap.put(hike.getId(), hike);
+                            } catch (Exception e) {
+                                Log.e("MapsActivity", "Failed to deserialize hike document: " + document.getId(), e);
+                            }
                         }
 
                         mMap.setOnMarkerClickListener(marker -> {
@@ -161,8 +188,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         hikeDetails.append("Reviews: ");
         if (hike.getReviews() != null && !hike.getReviews().isEmpty()) {
             hikeDetails.append("\n");
-            for (String review : hike.getReviews()) {
-                hikeDetails.append(review).append("\n");
+            for (Review review : hike.getReviews()) {
+                hikeDetails.append("temp review test").append("\n");
             }
         }
         else hikeDetails.append("No reviews yet.\n");

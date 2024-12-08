@@ -4,6 +4,7 @@ import com.google.firebase.firestore.PropertyName;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.List;
 
 public class Hike implements Serializable {
     private String id;
@@ -18,8 +19,9 @@ public class Hike implements Serializable {
     private boolean waterFountains;
     private boolean wifi;
     private ArrayList<Double> ratings;
-    private ArrayList<String> reviews;
+    //private ArrayList<String> reviews;
     private String trailConditions;
+    private List<Review> reviews;
 
     public Hike() {}
 
@@ -27,7 +29,7 @@ public class Hike implements Serializable {
         this.name = Name;
     }
     public Hike(String id, String name, int difficulty, double lat, double lng, boolean bathrooms,
-                boolean parking, ArrayList<Double> ratings, ArrayList<String> reviews,
+                boolean parking, ArrayList<Double> ratings, List<Review> reviews,
                 String trailConditions, boolean trailMarkers, boolean trashCans,
                 boolean waterFountains, boolean wifi) {
         this.id = id;
@@ -85,9 +87,9 @@ public class Hike implements Serializable {
     public void setRatings(ArrayList<Double> ratings) { this.ratings = ratings; }
 
     @PropertyName("Reviews")
-    public ArrayList<String> getReviews() { return reviews; }
+    public List<Review> getReviews() { return reviews; }
     @PropertyName("Reviews")
-    public void setReviews(ArrayList<String> reviews) { this.reviews = reviews; }
+    public void setReviews(List<Review> reviews) { this.reviews = reviews; }
 
     @PropertyName("Trail Conditions")
     public String getTrailConditions() { return trailConditions; }
