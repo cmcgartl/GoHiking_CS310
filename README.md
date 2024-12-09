@@ -4,7 +4,7 @@ The **GoHiking!** app is designed to help hikers discover hiking trails, keep tr
 
 ---
 
-## Improvements Made in Sprint 2.5
+## Improvements Made in Sprint (Project 2.5)
 
 ### Key Functionalities Added
 1. **Custom Lists Functionality**
