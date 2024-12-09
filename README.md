@@ -1,6 +1,4 @@
-# README for GoHiking! Android Application
-
-## GoHiking! CSCI 310
+# GoHiking! CSCI 310
 
 The **GoHiking!** app is designed to help hikers discover hiking trails, keep track of their favorite trails, and connect with fellow hikers.
 
