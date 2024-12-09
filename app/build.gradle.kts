@@ -67,6 +67,7 @@ dependencies {
     androidTestImplementation("org.mockito:mockito-android:5.6.0")
     androidTestImplementation(libs.testng) // Mockito for instrumentation tests
     implementation ("com.google.android.gms:play-services-maps:18.1.0")
+    implementation ("com.google.android.material:material:1.12.0")
 
 }
 

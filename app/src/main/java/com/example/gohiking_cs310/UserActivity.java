@@ -44,6 +44,7 @@ public class UserActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_profile);
+        setTheme(R.style.Theme_GoHiking_CS310);
 
         db = FirebaseFirestore.getInstance();
 
@@ -300,7 +301,7 @@ public class UserActivity extends AppCompatActivity {
                                 String name = document.getString("Name") != null ? document.getString("Name") : "Unknown";
                                 Boolean parking = document.getBoolean("Parking") != null ? document.getBoolean("Parking") : false;
                                 ArrayList<Double> ratings = document.get("Ratings") != null ? (ArrayList<Double>) document.get("Ratings") : new ArrayList<>();
-                                ArrayList<Review> reviews = document.get("Reviews") != null ? (ArrayList<Review>) document.get("Reviews") : new ArrayList<>();
+                                List<Review> reviews = document.get("Reviews") != null ? (List<Review>) document.get("Reviews") : new ArrayList<>();
                                 String conditions = document.getString("Trail Conditions") != null ? document.getString("Trail Conditions") : "Not available";
                                 Boolean markers = document.getBoolean("Trail Markers") != null ? document.getBoolean("Trail Markers") : false;
                                 Boolean trash = document.getBoolean("Trash Cans") != null ? document.getBoolean("Trash Cans") : false;
@@ -369,6 +370,17 @@ public class UserActivity extends AppCompatActivity {
                         else {
                             builder.setTitle("Your friend's List");
                         }
+                        if (customList == null || customList.isEmpty()) {
+                            if(userId.equals(currentUserId)){
+                                builder.setMessage("You have no custom lists!");
+                            }
+                            else {
+                                builder.setMessage("This user has no lists.");
+                                builder.setPositiveButton("OK", (dialog, which) -> dialog.dismiss());
+                                builder.create().show();
+                                return;
+                            }
+                        }
                         String[] lists = new String[customList.size()];
                         int i = 0;
                         for(String hike : customList.keySet()){
@@ -392,16 +404,16 @@ public class UserActivity extends AppCompatActivity {
                         List<Map<String, Object>> reviewList = (List<Map<String, Object>>) documentSnapshot.get("userReviews");
                         StringBuilder userReviews = new StringBuilder();
                         if (reviewList == null || reviewList.isEmpty()) {
-                            userReviews.append("No hikes in this list!");
+                            userReviews.append("No reviews!");
                         }
                         else {
                             for (Map<String, Object> reviewMap : reviewList) {
                                 String hikeName = (String) reviewMap.get("hikeName");
                                 String reviewText = (String) reviewMap.get("reviewText");
-                                Double rating = (Double) reviewMap.get("rating");
+                                Number ratingNumber = (Number) reviewMap.get("rating");
+                                Double rating = ratingNumber != null ? ratingNumber.doubleValue() : null;
 
-                                if (hikeName != null && reviewText != null) {
-                                    assert rating != null;
+                                if (hikeName != null && reviewText != null && rating != null) {
                                     userReviews.append("Hike Name: ").append(hikeName)
                                             .append("\nReview: ").append(reviewText)
                                             .append("\nRating: ").append(rating)

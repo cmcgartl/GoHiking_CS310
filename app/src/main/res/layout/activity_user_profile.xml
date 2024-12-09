@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -8,40 +9,28 @@
     android:padding="16dp"
     tools:context=".UserActivity">
 
-    <!-- Title: User Profile -->
-
-    <!-- Back to Home Button -->
-
-    <!-- Add Friend Section -->
-
-    <TextView
+    <!-- Title -->
+    <com.google.android.material.textview.MaterialTextView
         android:id="@+id/titleUserProfile"
-        android:layout_width="196dp"
-        android:layout_height="56dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:backgroundTint="#D71313"
-        android:shadowColor="#E01919"
-        android:shadowRadius="50"
         android:text="MY PROFILE"
-        android:textColor="#FFFFFF"
-        android:textColorHighlight="#C01B1B"
-        android:textColorHint="#A62626"
+        android:textColor="@color/colorOnPrimary"
         android:textSize="34sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.496"
         app:layout_constraintStart_toStartOf="parent"
-
         app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
+    <!-- User Information Section -->
+    <com.google.android.material.textview.MaterialTextView
         android:id="@+id/username"
         android:layout_width="match_parent"
         android:layout_height="110dp"
-        android:background="#BFD3D3D3"
         android:gravity="center"
         android:padding="16dp"
-        android:textColor="#000000"
+        android:textColor="@color/colorBackground"
         android:textSize="20sp"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -50,104 +39,114 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.8" />
 
-    <Button
+    <!-- Back and Log Out Buttons -->
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/buttonBackHome"
-        android:layout_width="68dp"
-        android:layout_height="61dp"
-        android:backgroundTint="#BFFFFFFF"
+        style="@style/Widget.MaterialComponents.Button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:text="Back"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/buttonLogOut"
-        android:layout_width="80dp"
-        android:layout_height="61dp"
-        android:backgroundTint="#BFFFFFFF"
+        style="@style/Widget.MaterialComponents.Button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:text="Log Out"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <Button
+    <!-- Manage Custom Lists Button -->
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/buttonCustomList"
+        style="@style/Widget.MaterialComponents.Button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="18dp"
-        android:backgroundTint="#BFFFFFFF"
         android:text="Manage My Custom Lists"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/titleUserProfile" />
 
-    <EditText
-        android:id="@+id/editTextAddFriend"
-        android:layout_width="254dp"
-        android:layout_height="43dp"
+    <!-- Add Friend Section -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/textInputAddFriend"
+        style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
         android:layout_marginTop="229dp"
-        android:background="#BFFFFFFF"
-        android:backgroundTint="#FFFFFF"
-        android:bufferType="spannable"
-        android:hint="   Enter friend's email"
-        android:textColor="#000000"
-        app:layout_constraintEnd_toStartOf="@id/buttonAddFriend"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/buttonBackHome" />
+        app:layout_constraintEnd_toStartOf="@+id/buttonAddFriend"
+        app:layout_constraintTop_toBottomOf="@+id/buttonBackHome">
 
-    <Button
+        <AutoCompleteTextView
+            android:id="@+id/editTextAddFriend"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Enter friend's email" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/buttonAddFriend"
-        android:layout_width="104dp"
-        android:layout_height="44dp"
-        android:backgroundTint="#BFFF0000"
+        style="@style/Widget.MaterialComponents.Button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
         android:text="Add Friend"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@id/editTextAddFriend" />
-
-    <!-- Search for Hike Section -->
-
-    <Button
-        android:id="@+id/buttonMyFriends"
-        android:layout_width="128dp"
-        android:layout_height="72dp"
-        android:layout_marginStart="43dp"
-        android:layout_marginBottom="46dp"
-        android:backgroundTint="#BFFFFFFF"
-        android:text="My Friends"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <Button
-        android:id="@+id/buttonMyHikes"
-        android:layout_width="128dp"
-        android:layout_height="72dp"
-        android:layout_marginEnd="46dp"
-        android:layout_marginBottom="46dp"
-        android:backgroundTint="#BFFFFFFF"
-        android:text="My Hikes"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/textInputAddFriend"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <Button
-        android:id="@+id/search_button"
-        android:layout_width="100dp"
-        android:layout_height="48dp"
+    <!-- Hike Search Section -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/textInputSearchHike"
+        style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:backgroundTint="#BFFF0000"
-        android:text="Search"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/buttonAddFriend" />
-
-    <AutoCompleteTextView
-        android:id="@+id/editTextSearchHike"
-        android:layout_width="254dp"
-        android:layout_height="47dp"
-        android:layout_marginTop="16dp"
-        android:background="#FFFFFF"
-        android:backgroundTint="#BFFFFFFF"
-        android:completionThreshold="0"
-        android:hint="   Search For A Hike"
-        android:textColor="#535353"
+        app:layout_constraintTop_toBottomOf="@+id/textInputAddFriend"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editTextAddFriend" />
+        app:layout_constraintEnd_toStartOf="@+id/search_button">
+
+        <AutoCompleteTextView
+            android:id="@+id/editTextSearchHike"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Search for a hike" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/search_button"
+        style="@style/Widget.MaterialComponents.Button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:text="Search"
+        app:layout_constraintTop_toTopOf="@+id/textInputSearchHike"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- My Friends and My Hikes Buttons -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/buttonMyFriends"
+        style="@style/Widget.MaterialComponents.Button"
+        android:layout_width="0dp"
+        android:layout_height="72dp"
+        android:layout_marginEnd="8dp"
+        android:text="My Friends"
+        app:layout_constraintEnd_toStartOf="@id/buttonMyHikes"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/buttonMyHikes"
+        style="@style/Widget.MaterialComponents.Button"
+        android:layout_width="0dp"
+        android:layout_height="72dp"
+        android:layout_marginStart="8dp"
+        android:text="My Hikes"
+        app:layout_constraintStart_toEndOf="@id/buttonMyFriends"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

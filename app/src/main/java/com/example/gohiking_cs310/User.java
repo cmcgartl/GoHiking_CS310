@@ -83,11 +83,11 @@ public class User {
     }
 
 
-   /* public List<String> getGroupActivities() {
+    public List<String> getGroupActivities() {
         return groupActivities;
     }
 
     public void addGroupActivity(String hikeId) {
         groupActivities.add(hikeId);
-    }*/
+    }
 }

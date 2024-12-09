@@ -3,7 +3,6 @@ package com.example.gohiking_cs310;
 
 
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -16,13 +15,12 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class HikeActivity extends AppCompatActivity {
     FirebaseFirestore db;
@@ -71,7 +69,8 @@ public class HikeActivity extends AppCompatActivity {
         reviewButton.setOnClickListener(v -> {
             Intent intent2 = new Intent(HikeActivity.this, ReviewActivity.class);
             assert hike != null;
-            intent2.putExtra("hikeId", hike.getId()); // Ensure hike.getId() is not null
+            intent2.putExtra("hikeId", hike.getId());
+            intent2.putExtra("Hike", hike);// Ensure hike.getId() is not null
             startActivity(intent2);
         });
 
@@ -82,46 +81,50 @@ public class HikeActivity extends AppCompatActivity {
             Log.e("HikeActivity", "Hike object is null!");
             return;
         }
-        StringBuilder hikeDetails = new StringBuilder("Difficulty: " + hike.getDifficulty() + "\n" + "Trail Conditions: ");
-        if (hike.getTrailConditions() != "")
-            hikeDetails.append(hike.getTrailConditions()).append("\n");
-        else hikeDetails.append("Trail Conditions not available.\n");
-        if (hike.getRatings() != null && !hike.getRatings().isEmpty()) {
-            int numRatings = hike.getRatings().size();
-            double totalRating = 0;
-            for (Number rating : hike.getRatings()) {
-                if (rating instanceof Long) {
-                    totalRating += rating.longValue();
-                } else if (rating instanceof Double) {
-                    totalRating += rating.doubleValue();
-                }
-            }
-            double averageRating = totalRating / numRatings;
-            hikeDetails.append("Average Rating: ").append(averageRating).append("\n");
-        } else hikeDetails.append("No ratings yet.\n");
-        hikeDetails.append("Reviews: ");
-        if (hike.getReviews() != null && !hike.getReviews().isEmpty()) {
-            hikeDetails.append("\n");
-            for (Review review : hike.getReviews()) {
-                hikeDetails.append(review.getReviewText()).append("\n");
-            }
-        } else hikeDetails.append("No reviews yet.\n");
-        hikeDetails.append("Amenities: \n" +
-                "Bathrooms: " + (hike.isBathrooms() ? "Yes" : "No") + "\n" +
-                "Parking: " + (hike.isParking() ? "Yes" : "No") + "\n" +
-                "Trail Markers: " + (hike.isTrailMarkers() ? "Yes" : "No") + "\n" +
-                "Trash Cans: " + (hike.isTrashCans() ? "Yes" : "No") + "\n" +
-                "Water Fountains: " + (hike.isWaterFountains() ? "Yes" : "No") + "\n" +
-                "WiFi: " + (hike.isWifi() ? "Yes" : "No") + "\n");
-
-
-        new AlertDialog.Builder(HikeActivity.this)
-                .setTitle(hike.getName())
-                .setMessage(hikeDetails.toString())
-                .setPositiveButton("Close", (dialog, which) -> dialog.dismiss())
-                .show();
+        List<Review> hikeReviews = new ArrayList<>();
+        db.collection("Hikes").document(hike.getId()).get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    List<Map<String, Object>> hikeReviewsMap = ( List<Map<String, Object>>) documentSnapshot.get("Reviews");
+                    if (hikeReviewsMap != null) {
+                        for (Map<String, Object> reviewMap : hikeReviewsMap) {
+                            String reviewText = (String) reviewMap.get("reviewText");
+                            Number ratingNumber = (Number) reviewMap.get("rating");
+                            long rating = ratingNumber != null ? ratingNumber.longValue() : 0;
+                            String userId = (String) reviewMap.get("userId");
+                            hikeReviews.add(new Review(reviewText, rating, userId));
+                        }
+                    }
+                    StringBuilder hikeDetails = new StringBuilder("Difficulty: " + hike.getDifficulty() + "\n" + "Trail Conditions: ");
+                    if (hike.getTrailConditions() != "") {
+                        hikeDetails.append(hike.getTrailConditions()).append("\n");
+                    }
+                    else {hikeDetails.append("Trail Conditions not available.\n");}
+                    if (!hikeReviews.isEmpty()) {
+                        int numRatings = hikeReviews.size();
+                        double totalRating = 0;
+                        for (Review review : hikeReviews) {
+                            totalRating += review.getRating();
+                        }
+                        double averageRating = totalRating / numRatings;
+                        hikeDetails.append("Average Rating: ").append(averageRating).append("\n");
+                        hikeDetails.append("Reviewed by: " + numRatings + " users").append("\n");
+                    } else {
+                        hikeDetails.append("No reviews for this hike yet.\n");
+                    }
+                    hikeDetails.append("Amenities: \n" +
+                            "Bathrooms: " + (hike.isBathrooms() ? "Yes" : "No") + "\n" +
+                            "Parking: " + (hike.isParking() ? "Yes" : "No") + "\n" +
+                            "Trail Markers: " + (hike.isTrailMarkers() ? "Yes" : "No") + "\n" +
+                            "Trash Cans: " + (hike.isTrashCans() ? "Yes" : "No") + "\n" +
+                            "Water Fountains: " + (hike.isWaterFountains() ? "Yes" : "No") + "\n" +
+                            "WiFi: " + (hike.isWifi() ? "Yes" : "No") + "\n");
+                    new AlertDialog.Builder(HikeActivity.this)
+                            .setTitle(hike.getName())
+                            .setMessage(hikeDetails.toString())
+                            .setPositiveButton("Close", (dialog, which) -> dialog.dismiss())
+                            .show();
+                });
     }
-
     public void addCustomHike(Hike hike, String listName) {
         String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
         if (hike == null || listName == null) {

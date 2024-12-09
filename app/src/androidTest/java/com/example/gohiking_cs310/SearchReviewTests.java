@@ -295,7 +295,7 @@ public class SearchReviewTests {
                 .perform(click());
 
         // Verify the first review is displayed
-        onView(withId(R.id.review_list_text_view))
+        onView(withId(R.id.review_list_view))
                 .check(matches(withSubstring("First review")));
 
         // Submit an updated review
@@ -341,11 +341,11 @@ public class SearchReviewTests {
                 .perform(click());
 
         // Verify the updated review is displayed
-        onView(withId(R.id.review_list_text_view))
+        onView(withId(R.id.review_list_view))
                 .check(matches(withSubstring("Updated review")));
 
         // Verify the first review is no longer displayed
-        onView(withId(R.id.review_list_text_view))
+        onView(withId(R.id.review_list_view))
                 .check(matches(not(withSubstring("First review"))));
     }
 
@@ -428,7 +428,7 @@ public class SearchReviewTests {
                 .perform(click());
 
         // Use the custom matcher again to verify the review persists
-        onView(withId(R.id.review_list_text_view))
+        onView(withId(R.id.review_list_view))
                 .check(matches(withSubstring("Stunning views, must visit!")));
     }
 

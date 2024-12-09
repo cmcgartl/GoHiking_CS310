@@ -384,6 +384,7 @@ public class JoinAndViewGroups extends AppCompatActivity implements GroupActivit
                 .set(activityMap)
                 .addOnSuccessListener(aVoid -> {
                     Toast.makeText(this, "Group activity created successfully!", Toast.LENGTH_SHORT).show();
+                    fetchGroupActivities();
                 })
                 .addOnFailureListener(e -> {
                     Toast.makeText(this, "Failed to create group activity.", Toast.LENGTH_SHORT).show();
