@@ -36,6 +36,7 @@ public class UserActivity extends AppCompatActivity {
     private ArrayList<String> hikesList = new ArrayList<>();
     private ArrayAdapter<String> hikeAdapter;
     private AutoCompleteTextView autoCompleteHikeSearch;
+    private AutoCompleteTextView autoCompleteFriendSearch;
     private List<Pair<String, String>> friendsList = new ArrayList<>();
     private Boolean pub;
 
@@ -43,21 +44,34 @@ public class UserActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_user_profile);
+        setContentView(R.layout.activity_test);
         setTheme(R.style.Theme_GoHiking_CS310);
 
         db = FirebaseFirestore.getInstance();
 
         autoCompleteHikeSearch = findViewById(R.id.editTextSearchHike);
+        autoCompleteFriendSearch = findViewById(R.id.editTextAddFriend);
         hikeAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, hikesList);
         autoCompleteHikeSearch.setAdapter(hikeAdapter);
-        loadHikeSuggestions("");
-
         autoCompleteHikeSearch.setOnFocusChangeListener((v, hasFocus) -> {
             if (hasFocus) {
+                autoCompleteHikeSearch.setHint("");
                 autoCompleteHikeSearch.showDropDown();
             }
+            else if (autoCompleteHikeSearch.getText().toString().isEmpty()) {
+                autoCompleteHikeSearch.setHint("Add Friend"); // Restore the hint if the field is empty
+            }
         });
+
+        autoCompleteFriendSearch.setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus) {
+                autoCompleteFriendSearch.setHint("");
+            }
+            else if (autoCompleteFriendSearch.getText().toString().isEmpty()) {
+                autoCompleteHikeSearch.setHint("Add Friend"); // Restore the hint if the field is empty
+            }
+        });
+
 
         autoCompleteHikeSearch.addTextChangedListener(new android.text.TextWatcher() {
             @Override
@@ -119,6 +133,7 @@ public class UserActivity extends AppCompatActivity {
         });
 
         TextView tv = findViewById(R.id.username);
+        TextView name = findViewById(R.id.textView2);
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
@@ -130,7 +145,8 @@ public class UserActivity extends AppCompatActivity {
                     .addOnSuccessListener(documentSnapshot -> {
                         if (documentSnapshot.exists()) {
                             String username = documentSnapshot.getString("username"); // Retrieve the "username" field
-                            tv.setText("Basic User Information: \n Full Name: " + username + "\nEmail: " + email);
+                            tv.setText(email);
+                            name.setText(username);
                         } else {
                             tv.setText("No username found for this user");
                         }
