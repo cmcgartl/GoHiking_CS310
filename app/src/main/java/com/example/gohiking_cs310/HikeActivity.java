@@ -27,14 +27,14 @@ public class HikeActivity extends AppCompatActivity {
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_hikeinfo);
+        setContentView(R.layout.hikepage);
         db = FirebaseFirestore.getInstance();
         Intent intent = getIntent();
         Hike hike = (Hike) getIntent().getSerializableExtra("hikeObject");
-        TextView hikeTitleTextView = findViewById(R.id.text_hike_name);
+        TextView hikeTitleTextView = findViewById(R.id.textView4);
         if (hike != null) {
             Log.d("HikeActivity", "Hike details loaded: " + hike.getName());
-            hikeTitleTextView.setText(hike.getName());
+            hikeTitleTextView.setText("Welcome To The " + hike.getName() + " Info Page!");
         } else {
             Log.e("HikeActivity", "Hike object is null!");
         }
@@ -62,6 +62,17 @@ public class HikeActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(HikeActivity.this, UserActivity.class);
                 startActivity(intent);
+                finish();
+            }
+        });
+
+        Button backHome = findViewById(R.id.buttonBackHome);
+        backHome.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(HikeActivity.this, MapsActivity.class);
+                startActivity(intent);
+                finish();
             }
         });
 
@@ -70,8 +81,19 @@ public class HikeActivity extends AppCompatActivity {
             Intent intent2 = new Intent(HikeActivity.this, ReviewActivity.class);
             assert hike != null;
             intent2.putExtra("hikeId", hike.getId());
-            intent2.putExtra("Hike", hike);// Ensure hike.getId() is not null
             startActivity(intent2);
+        });
+
+        Button logoutButton = findViewById(R.id.buttonLogout);
+        logoutButton.setOnClickListener(v -> {
+            FirebaseAuth.getInstance().signOut(); // Log out the current user
+            Toast.makeText(HikeActivity.this, "Logged out successfully.", Toast.LENGTH_SHORT).show();
+
+            // go back to MapsActivity
+            Intent intent3 = new Intent(HikeActivity.this, MapsActivity.class);
+            intent3.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent3);
+            finish();
         });
 
     }

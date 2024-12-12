@@ -21,7 +21,7 @@ public class CustomListActivity extends AppCompatActivity {
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.custom_list);
+        setContentView(R.layout.lists);
         db = FirebaseFirestore.getInstance();
 
         Button buttonBackToHome = findViewById(R.id.buttonBackHome);
@@ -30,6 +30,25 @@ public class CustomListActivity extends AppCompatActivity {
             startActivity(intent);
             finish();
         });
+        Button profile = findViewById(R.id.buttonBackToProfile);
+        profile.setOnClickListener(v -> {
+            Intent intent = new Intent(CustomListActivity.this, UserActivity.class);
+            startActivity(intent);
+            finish();
+        });
+
+        Button logoutButton = findViewById(R.id.buttonLogout);
+        logoutButton.setOnClickListener(v -> {
+            FirebaseAuth.getInstance().signOut(); // Log out the current user
+            Toast.makeText(CustomListActivity.this, "Logged out successfully.", Toast.LENGTH_SHORT).show();
+
+            // go back to MapsActivity
+            Intent intent = new Intent(CustomListActivity.this, MapsActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+            finish();
+        });
+
         Button newList = findViewById(R.id.buttonCreateList);
         newList.setOnClickListener(v -> {
             EditText addList = findViewById(R.id.editTextCreateList);
@@ -141,15 +160,21 @@ public class CustomListActivity extends AppCompatActivity {
                         builder.setTitle("Your Lists");
                         String[] lists = new String[customList.size()];
                         int i = 0;
-                        for(String hike : customList.keySet()){
-                            lists[i] = hike;
-                            i++;
+                        if (customList == null || customList.isEmpty()) {
+                            builder.setMessage("You have no custom lists!");
+                            builder.setPositiveButton("OK", (dialog, which) -> dialog.dismiss());
                         }
-                        builder.setItems(lists, (dialog, which) -> {
-                            String selectedList = lists[which];
-                            showCustomHikes(selectedList, userId);
-                        });
-                        builder.setPositiveButton("OK", (dialog, which) -> dialog.dismiss());
+                        else {
+                            for (String hike : customList.keySet()) {
+                                lists[i] = hike;
+                                i++;
+                            }
+                            builder.setItems(lists, (dialog, which) -> {
+                                String selectedList = lists[which];
+                                showCustomHikes(selectedList, userId);
+                            });
+                            builder.setPositiveButton("OK", (dialog, which) -> dialog.dismiss());
+                        }
                         builder.create().show();
                     }
                 });

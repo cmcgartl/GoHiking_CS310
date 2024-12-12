@@ -52,16 +52,38 @@ public class ReviewActivity extends AppCompatActivity {
         reviewListView.setOnItemClickListener((parent, view, position, id) -> showReviewDetails(position));
         db = FirebaseFirestore.getInstance();
         hikeId = getIntent().getStringExtra("hikeId");
-
         reviewListView = findViewById(R.id.review_list_view);
         ratingBar = findViewById(R.id.rating_bar);
         reviewEditText = findViewById(R.id.review_edit_text);
         Button submitButton = findViewById(R.id.submit_review_button);
-
-        Button backToProfile = findViewById(R.id.buttonBackToHike);
+        TextView title = findViewById(R.id.textView3);
+        db.collection ("Hikes").document(hikeId).get()
+                        .addOnSuccessListener(documentSnapshot -> {
+                            String hikeName = (String) documentSnapshot.get("Name");
+                            title.setText("Welcome To The " + hikeName + " Review Page!");
+                        });
+        Button backToProfile = findViewById(R.id.buttonBackToProfile);
         backToProfile.setOnClickListener(v -> {
-            Intent intent = new Intent(ReviewActivity.this, HikeActivity.class);
+            Intent intent = new Intent(ReviewActivity.this, UserActivity.class);
             startActivity(intent);
+        });
+
+        Button backHome = findViewById(R.id.buttonBackToHome);
+        backHome.setOnClickListener(v -> {
+            Intent intent = new Intent(ReviewActivity.this, MapsActivity.class);
+            startActivity(intent);
+        });
+
+        Button logoutButton = findViewById(R.id.buttonLogout);
+        logoutButton.setOnClickListener(v -> {
+            FirebaseAuth.getInstance().signOut(); // Log out the current user
+            Toast.makeText(ReviewActivity.this, "Logged out successfully.", Toast.LENGTH_SHORT).show();
+
+            // go back to MapsActivity
+            Intent intent = new Intent(ReviewActivity.this, MapsActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+            finish();
         });
 
         loadReviews();

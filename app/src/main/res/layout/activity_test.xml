@@ -172,7 +172,7 @@
                                     android:background="@drawable/button_background"
                                     android:text="Search"
                                     app:layout_constraintEnd_toEndOf="parent"
-                                    app:layout_constraintStart_toEndOf="@+id/autoCompleteTextView2"
+                                    app:layout_constraintStart_toEndOf="@+id/editTextSearchHike"
                                     app:layout_constraintTop_toBottomOf="@+id/editTextAddFriend" />
                             </androidx.constraintlayout.widget.ConstraintLayout>
 

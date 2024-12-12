@@ -384,14 +384,14 @@ public class UserActivity extends AppCompatActivity {
                             builder.setTitle("Your List");
                         }
                         else {
-                            builder.setTitle("Your friend's List");
+                            builder.setTitle("Your friend's Lists");
                         }
                         if (customList == null || customList.isEmpty()) {
                             if(userId.equals(currentUserId)){
                                 builder.setMessage("You have no custom lists!");
                             }
                             else {
-                                builder.setMessage("This user has no lists.");
+                                builder.setMessage("This user has no lists!");
                                 builder.setPositiveButton("OK", (dialog, which) -> dialog.dismiss());
                                 builder.create().show();
                                 return;
