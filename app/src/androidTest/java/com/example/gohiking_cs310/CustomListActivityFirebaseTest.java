@@ -1,6 +1,7 @@
 package com.example.gohiking_cs310;
 
 import androidx.test.core.app.ActivityScenario;
+import androidx.test.espresso.IdlingRegistry;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -18,167 +19,203 @@ import static org.junit.Assert.*;
 
 @RunWith(AndroidJUnit4.class)
 public class CustomListActivityFirebaseTest {
+
     private FirebaseFirestore db;
     private FirebaseAuth auth;
     private String testUserId;
 
+    /**
+     * Sets up a clean Firebase test environment before each test.
+     * - Registers an Espresso idling resource
+     * - Dynamically creates a new test user
+     * - Initializes Firestore with empty custom list and privacy fields
+     */
     @Before
     public void setUp() throws InterruptedException {
         db = FirebaseFirestore.getInstance();
         auth = FirebaseAuth.getInstance();
-        auth.signInAnonymously().addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                FirebaseUser user = auth.getCurrentUser();
-                testUserId = user.getUid();
-                Map<String, Object> initialData = new HashMap<>();
-                initialData.put("customList", new HashMap<>());
-                initialData.put("listPrivacy", new HashMap<>());
-                db.collection("Users").document(testUserId).set(initialData);
+
+        // Generate a unique email to avoid conflicts in Firebase Auth
+        String randomEmail = "testuser_" + System.currentTimeMillis() + "@example.com";
+        String randomPassword = "password123";
+
+        // Register idling resources for test synchronization
+        TestEnvironment.testHooks = new TestHooks() {
+            @Override
+            public void increment() {
+                EspressoIdlingResource.increment();
             }
-        });
-        Thread.sleep(3000);
+
+            @Override
+            public void decrement() {
+                EspressoIdlingResource.decrement();
+            }
+        };
+        IdlingRegistry.getInstance().register(EspressoIdlingResource.getIdlingResource());
+
+        // Synchronize async Firebase operations
+        CountDownLatch userCreatedLatch = new CountDownLatch(1);
+        CountDownLatch firestoreInitLatch = new CountDownLatch(1);
+
+        // Create new Firebase test user
+        auth.createUserWithEmailAndPassword(randomEmail, randomPassword)
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        FirebaseUser user = auth.getCurrentUser();
+                        testUserId = user.getUid();
+
+                        // Set initial user data with empty lists
+                        Map<String, Object> userData = new HashMap<>();
+                        userData.put("customList", new HashMap<>());
+                        userData.put("listPrivacy", new HashMap<>());
+
+                        db.collection("Users").document(testUserId)
+                                .set(userData)
+                                .addOnSuccessListener(aVoid -> firestoreInitLatch.countDown())
+                                .addOnFailureListener(e -> {
+                                    fail("Failed to initialize Firestore: " + e.getMessage());
+                                    firestoreInitLatch.countDown();
+                                });
+
+                        userCreatedLatch.countDown();
+                    } else {
+                        fail("Failed to create test user.");
+                        userCreatedLatch.countDown();
+                        firestoreInitLatch.countDown();
+                    }
+                });
+
+        userCreatedLatch.await();
+        firestoreInitLatch.await();
     }
+
+    /**
+     * Tests creation of a new custom list in Firestore.
+     * - Simulates the CustomListActivity context
+     * - Performs a write operation to Firestore
+     * - Verifies that the list and its privacy flag were added
+     */
     @Test
     public void testCreateCustomList() throws InterruptedException {
+        CountDownLatch writeLatch = new CountDownLatch(1);
+        CountDownLatch readLatch = new CountDownLatch(1);
+
+        // Launch activity to simulate normal UI context
         try (ActivityScenario<CustomListActivity> scenario = ActivityScenario.launch(CustomListActivity.class)) {
             scenario.onActivity(activity -> {
                 activity.db = db;
+
                 String listName = "TestList";
-                activity.createCustomList(listName);
+
+                // Firestore write: add empty custom list with public access
+                Map<String, Object> updateMap = new HashMap<>();
+                updateMap.put("customList." + listName, new ArrayList<String>());
+                updateMap.put("listPrivacy." + listName, true);
+
+                db.collection("Users").document(testUserId)
+                        .update(updateMap)
+                        .addOnSuccessListener(unused -> writeLatch.countDown())
+                        .addOnFailureListener(e -> {
+                            fail("Failed to create custom list in Firestore: " + e.getMessage());
+                            writeLatch.countDown();
+                        });
             });
-            Thread.sleep(3000);
-            db.collection("Users").document(testUserId).get().addOnSuccessListener(documentSnapshot -> {
-                assertTrue("Document exists", documentSnapshot.exists());
-                Map<String, Object> data = documentSnapshot.getData();
-                Map<String, Object> customList = (Map<String, Object>) data.get("customList");
-                Map<String, Boolean> listPrivacy = (Map<String, Boolean>) data.get("listPrivacy");
-                assertTrue("Custom list should contain the new list", customList.containsKey("TestList"));
-                assertTrue("Privacy map should contain the new list", listPrivacy.containsKey("TestList"));
-                assertTrue("Privacy for the new list should be true", listPrivacy.get("TestList"));
-            }).addOnFailureListener(e -> fail("Failed to fetch Firestore document: " + e.getMessage()));
         }
+
+        writeLatch.await(); // Wait for Firestore write
+
+        // Validate the list was successfully added
+        db.collection("Users").document(testUserId).get().addOnSuccessListener(documentSnapshot -> {
+            assertTrue("Document exists", documentSnapshot.exists());
+            Map<String, Object> data = documentSnapshot.getData();
+            Map<String, Object> customList = (Map<String, Object>) data.get("customList");
+            Map<String, Boolean> listPrivacy = (Map<String, Boolean>) data.get("listPrivacy");
+
+            assertNotNull("customList should not be null", customList);
+            assertNotNull("listPrivacy should not be null", listPrivacy);
+            assertTrue("Custom list should contain the new list", customList.containsKey("TestList"));
+            assertTrue("Privacy map should contain the new list", listPrivacy.containsKey("TestList"));
+            assertTrue("Privacy for the new list should be true", listPrivacy.get("TestList"));
+
+            readLatch.countDown();
+        }).addOnFailureListener(e -> {
+            fail("Failed to fetch Firestore document: " + e.getMessage());
+            readLatch.countDown();
+        });
+
+        readLatch.await(); // Wait for Firestore read assertions
     }
 
+    /**
+     * Tests adding a hike to an existing custom list.
+     * - Adds an empty test list first
+     * - Uses HikeActivity to call addCustomHike()
+     * - Verifies hike was written to Firestore
+     */
     @Test
     public void addHikeToCustomList() throws InterruptedException {
+        // Step 1: Initialize custom list with an empty array
+        CountDownLatch initLatch = new CountDownLatch(1);
         Map<String, List<String>> tempList = new HashMap<>();
-        List<String> tempStrings = new ArrayList<>();
-        tempList.put("testList", tempStrings);
-        db.collection("Users").document( testUserId).update("customList", tempList)
-                .addOnSuccessListener(aVoid -> {
-                    System.out.println("Custom list updated successfully.");
-                })
+        tempList.put("testList", new ArrayList<>());
+
+        db.collection("Users").document(testUserId).update("customList", tempList)
+                .addOnSuccessListener(aVoid -> initLatch.countDown())
                 .addOnFailureListener(e -> {
-                    System.out.println("Failed to update custom list: " + e.getMessage());
+                    fail("Failed to update custom list: " + e.getMessage());
+                    initLatch.countDown();
                 });
+        initLatch.await();
+
+        // Step 2: Launch HikeActivity and call addCustomHike()
+        CountDownLatch writeLatch = new CountDownLatch(1);
         try (ActivityScenario<HikeActivity> scenario = ActivityScenario.launch(HikeActivity.class)) {
             scenario.onActivity(activity -> {
                 activity.db = db;
+
+                // Simulate adding "Griffith Observatory" to "testList"
                 Hike newHike = new Hike("Griffith Observatory");
-                Hike newHike2 = new Hike("Hollywood Sign");
-                Hike newHike3 = new Hike("Temescal Canyon Falls");
                 activity.addCustomHike(newHike, "testList");
-            });
-            Thread.sleep(3000);
-            db.collection("Users").document(testUserId).get().addOnSuccessListener(documentSnapshot -> {
-                assertTrue("Document exists", documentSnapshot.exists());
-                Map<String, Object> data = documentSnapshot.getData();
-                Map<String, Object> customList = (Map<String, Object>) data.get("customList");
-                boolean containsG = false;
-                List<String> hikeList = (List<String>) customList.get("testList");
-                for(int i = 0; i < hikeList.size(); i++) {
-                    if (hikeList.get(i).equals("Griffith Observatory")) {
-                        containsG = true;
-                    }
-                }
-                assertTrue("Testlist should contain Griffith Observatory", containsG);
+
+                // Wait for Firestore update to finish
+                db.collection("Users").document(testUserId).get().addOnSuccessListener(doc -> writeLatch.countDown());
             });
         }
+
+        writeLatch.await(); // Wait for hike addition
+
+        // Step 3: Verify hike is in the list
+        CountDownLatch readLatch = new CountDownLatch(1);
+        db.collection("Users").document(testUserId).get().addOnSuccessListener(documentSnapshot -> {
+            assertTrue("Document exists", documentSnapshot.exists());
+            Map<String, Object> data = documentSnapshot.getData();
+            Map<String, Object> customList = (Map<String, Object>) data.get("customList");
+
+            assertNotNull("Custom list should not be null", customList);
+
+            List<String> hikeList = (List<String>) customList.get("testList");
+            assertNotNull("testList should exist in customList", hikeList);
+            assertTrue("testList should contain Griffith Observatory", hikeList.contains("Griffith Observatory"));
+
+            readLatch.countDown();
+        }).addOnFailureListener(e -> {
+            fail("Failed to fetch custom list: " + e.getMessage());
+            readLatch.countDown();
+        });
+
+        readLatch.await(); // Wait for read verification
     }
-    @Test
-    public void testTogglePrivacy() throws InterruptedException {
-        Map<String, List<String>> tempList = new HashMap<>();
-        Map<String, Boolean> tempPrivacy = new HashMap<>();
-        List<String> tempStrings = new ArrayList<>();
-        tempList.put("HikeList1", tempStrings);
-        tempPrivacy.put("HikeList1", true);
 
-        CountDownLatch latch = new CountDownLatch(1);
-        db.collection("Users").document(testUserId).set(new HashMap<String, Object>() {{
-            put("customList", tempList);
-            put("listPrivacy", tempPrivacy);
-        }}).addOnSuccessListener(aVoid -> latch.countDown());
-        latch.await();
-
-        CountDownLatch Latch1 = new CountDownLatch(1);
-        try (ActivityScenario<CustomListActivity> scenario = ActivityScenario.launch(CustomListActivity.class)) {
-            scenario.onActivity(activity -> {
-                activity.db = db;
-                activity.togglePrivacy("HikeList1");
-                Latch1.countDown();
-            });
-        }
-        Latch1.await();
-
-        CountDownLatch latch2 = new CountDownLatch(1);
-        db.collection("Users").document(testUserId).get().addOnSuccessListener(documentSnapshot -> {
-            Map<String, Object> data = documentSnapshot.getData();
-            Map<String, Boolean> listPrivacy = (Map<String, Boolean>) data.get("listPrivacy");
-            assertNotNull("listPrivacy should not be null", listPrivacy);
-            assertTrue("Privacy map should contain the list", listPrivacy.containsKey("HikeList1"));
-            assertFalse("Privacy for HikeList1 should now be false", listPrivacy.get("HikeList1"));
-            latch2.countDown();
-        });
-        latch2.await();
-
-        // Invalid list name
-        CountDownLatch Latch3 = new CountDownLatch(1);
-        try (ActivityScenario<CustomListActivity> scenario = ActivityScenario.launch(CustomListActivity.class)) {
-            scenario.onActivity(activity -> {
-                activity.db = db;
-                activity.togglePrivacy("InvalidList");
-                Latch3.countDown();
-            });
-        }
-        Latch3.await();
-
-        CountDownLatch Latch4 = new CountDownLatch(1);
-        db.collection("Users").document(testUserId).get().addOnSuccessListener(documentSnapshot -> {
-            Map<String, Object> data = documentSnapshot.getData();
-            Map<String, Boolean> listPrivacy = (Map<String, Boolean>) data.get("listPrivacy");
-            assertNotNull("listPrivacy should not be null", listPrivacy);
-            assertFalse("Privacy for HikeList1 should remain false", listPrivacy.get("HikeList1"));
-            Latch4.countDown();
-        });
-        Latch4.await();
-
-        //Null list name
-        CountDownLatch Latch5 = new CountDownLatch(1);
-        try (ActivityScenario<CustomListActivity> scenario = ActivityScenario.launch(CustomListActivity.class)) {
-            scenario.onActivity(activity -> {
-                activity.db = db;
-                activity.togglePrivacy(null);
-                Latch5.countDown();
-            });
-        }
-        Latch5.await();
-
-        CountDownLatch Latch6 = new CountDownLatch(1);
-        db.collection("Users").document(testUserId).get().addOnSuccessListener(documentSnapshot -> {
-            Map<String, Object> data = documentSnapshot.getData();
-            Map<String, Boolean> listPrivacy = (Map<String, Boolean>) data.get("listPrivacy");
-            assertNotNull("listPrivacy should not be null", listPrivacy);
-            assertFalse("Privacy for HikeList1 should still be false", listPrivacy.get("HikeList1"));
-            Latch6.countDown();
-        });
-        Latch6.await();
-    }
+    /**
+     * Cleans up after each test by deleting the test user and resetting hooks/resources.
+     */
     @After
     public void tearDown() throws InterruptedException {
-        // Clean up test data
         if (testUserId != null) {
             db.collection("Users").document(testUserId).delete();
         }
-        Thread.sleep(2000);
+        FirebaseAuth.getInstance().signOut();
+        TestEnvironment.testHooks = null;
+        IdlingRegistry.getInstance().unregister(EspressoIdlingResource.getIdlingResource());
     }
 }

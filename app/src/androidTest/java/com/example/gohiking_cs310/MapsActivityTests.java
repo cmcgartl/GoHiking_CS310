@@ -1,87 +1,137 @@
 package com.example.gohiking_cs310;
 
 import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.action.ViewActions.clearText;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.closeSoftKeyboard;
 import static androidx.test.espresso.action.ViewActions.typeText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
-import static androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibility;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
+import static androidx.test.espresso.Espresso.pressBackUnconditionally;
+import static org.hamcrest.Matchers.startsWith;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
-import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.firebase.auth.FirebaseAuth;
+import androidx.test.espresso.IdlingRegistry;
 
-import com.google.android.gms.maps.model.Marker;
-
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+/**
+ * MapsActivityTests performs UI tests for the login flow within MapsActivity.
+ * It tests both valid and invalid login scenarios using Firebase Authentication.
+ * EspressoIdlingResource ensures Firebase async operations are properly synchronized with test execution.
+ */
+
 @RunWith(AndroidJUnit4.class)
 public class MapsActivityTests {
 
+    // Launches MapsActivity before each test case
     @Rule
     public ActivityScenarioRule<MapsActivity> activityRule =
             new ActivityScenarioRule<>(MapsActivity.class);
 
-    // BLACK BOX TEST #1: Login and Signup Buttons and Map Visibility
-    @Test
-    public void testLoginSignupButtonsAndMapVisibility() {
-        // Check if the Login button is displayed
-        onView(withId(R.id.button_login))
-                .check(matches(isDisplayed()));
+    /**
+     * Prepares the test environment:
+     * - Signs out any previously authenticated user
+     * - Registers EspressoIdlingResource for Firebase sync
+     */
+    @Before
+    public void setUp() {
+        FirebaseAuth.getInstance().signOut(); // Ensure clean session
 
-        // Check if the Signup button is displayed
-        onView(withId(R.id.button_signup))
-                .check(matches(isDisplayed()));
+        // Register idling hooks to sync with Firebase async events
+        TestEnvironment.testHooks = new TestHooks() {
+            @Override
+            public void increment() {
+                EspressoIdlingResource.increment();
+            }
 
-        // Check if the Map view is displayed
-        onView(withId(R.id.map))
-                .check(matches(isDisplayed()));
+            @Override
+            public void decrement() {
+                EspressoIdlingResource.decrement();
+            }
+        };
+        IdlingRegistry.getInstance().register(EspressoIdlingResource.getIdlingResource());
     }
 
-
-    // BLACK BOX TEST #2: User Login: Navigates to Login page and logs in as martinestrin2@yahoo.com
-    @Test
-    public void testNavigateToLoginAndPerformLogin() {
-        // Navigate from MapsActivity to Login activity
-        onView(withId(R.id.button_login))
-                .check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE))) // Ensure visible
-                .perform(click());
-
-        onView(withId(R.id.editTextUsername))
-                .check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE))) // Ensure username field visible
-                .perform(typeText("martinestrin2@yahoo.com"), closeSoftKeyboard());
-
-        onView(withId(R.id.editTextPassword))
-                .perform(typeText("WHITEBOXTEST2"), closeSoftKeyboard());
-
-        onView(withId(R.id.buttonLogin))
-                .check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE))) // Ensure login button visible
-                .perform(click());
+    /**
+     * Cleans up the test environment:
+     * - Signs out the user
+     * - Unregisters the idling resource to avoid memory leaks
+     */
+    @After
+    public void tearDown() {
+        TestEnvironment.testHooks = null;
+        IdlingRegistry.getInstance().unregister(EspressoIdlingResource.getIdlingResource());
+        FirebaseAuth.getInstance().signOut();
     }
 
-    // BLACK BOX TEST #3: User Sign-Up: Navigates to Sign-Up page and creates a new user
+    /**
+     * Comprehensive test that checks login functionality under three scenarios:
+     * Valid email & password
+     * Valid email & invalid password
+     * Invalid email & valid password
+     * Each section validates correct screen transition or toast error.
+     */
     @Test
-    public void testNavigateToSignUpAndPerformSignUp() {
-        // Navigate from MapsActivity to SignUp activity
-        onView(withId(R.id.button_signup))
+    public void testLoginWithValidAndInvalidCredentials() {
+        // === Navigate to Login Screen ===
+        onView(withId(R.id.button_login))
                 .check(matches(isDisplayed()))
                 .perform(click());
 
+        // === VALID LOGIN ===
         onView(withId(R.id.editTextUsername))
-                .check(matches(isDisplayed()));
-        onView(withId(R.id.editTextUsername))
-                .perform(typeText("white_box_test_user@example.com"), closeSoftKeyboard());
-        onView(withId(R.id.username))
-                .perform(typeText("Test User"), closeSoftKeyboard());
+                .perform(typeText("white_box_testing_user@gmail.com"), closeSoftKeyboard());
+
         onView(withId(R.id.editTextPassword))
                 .perform(typeText("password123"), closeSoftKeyboard());
-        onView(withId(R.id.buttonSignUp))
-                .perform(click());
-    }
 
+        onView(withId(R.id.buttonLogin))
+                .perform(click());
+
+        // Verify successful login by checking if user email is displayed in UserActivity
+        onView(withId(R.id.username))
+                .check(matches(withText("white_box_testing_user@gmail.com")));
+
+        // === Logout to continue testing invalid credentials ===
+        onView(withId(R.id.buttonLogOut)).perform(click());
+
+        // === INVALID PASSWORD ===
+        onView(withId(R.id.button_login)).perform(click());
+
+        onView(withId(R.id.editTextUsername))
+                .perform(clearText(), typeText("white_box_testing_user@gmail.com"), closeSoftKeyboard());
+
+        onView(withId(R.id.editTextPassword))
+                .perform(clearText(), typeText("wrongpassword"), closeSoftKeyboard());
+
+        onView(withId(R.id.buttonLogin))
+                .perform(click());
+
+        // Assert the presence of a toast error message
+        assertTrue(ToastUtil.getLastToastMessage().contains("Login failed"));
+
+        // === INVALID EMAIL ===
+        onView(withId(R.id.editTextUsername))
+                .perform(clearText(), typeText("notarealuser@example.com"), closeSoftKeyboard());
+
+        onView(withId(R.id.editTextPassword))
+                .perform(clearText(), typeText("password123"), closeSoftKeyboard());
+
+        onView(withId(R.id.buttonLogin))
+                .perform(click());
+
+        // Assert the presence of a toast error message
+        assertTrue(ToastUtil.getLastToastMessage().contains("Login failed"));
+    }
 }

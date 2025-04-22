@@ -1,13 +1,21 @@
 package com.example.gohiking_cs310;
 
 import com.google.firebase.firestore.PropertyName;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Class represents a hiking trail
+ * This class serves as a data model for Firestore documents in the "Hikes" collection
+ * and is also used for transferring hike data between activities via serialization.
+ */
 public class Hike implements Serializable {
+
+    // Unique Firestore document ID
     private String id;
+
+    // Trail attributes stored in Firestore and shown in the app
     private String name;
     private int difficulty;
     private double lat;
@@ -18,16 +26,28 @@ public class Hike implements Serializable {
     private boolean trashCans;
     private boolean waterFountains;
     private boolean wifi;
+
+    // Aggregated user ratings and reviews
     private ArrayList<Double> ratings;
-    //private ArrayList<String> reviews;
     private String trailConditions;
     private List<Review> reviews;
 
+    /**
+     * Default constructor required for Firestore deserialization.
+     */
     public Hike() {}
 
-    public Hike(String Name){
+    /**
+     * Minimal constructor used when only the name is needed (e.g., for search or temporary usage).
+     */
+    public Hike(String Name) {
         this.name = Name;
     }
+
+    /**
+     * Full constructor for creating a complete Hike object.
+     * Used when populating the UI or submitting to Firestore.
+     */
     public Hike(String id, String name, int difficulty, double lat, double lng, boolean bathrooms,
                 boolean parking, ArrayList<Double> ratings, List<Review> reviews,
                 String trailConditions, boolean trailMarkers, boolean trashCans,
@@ -48,6 +68,7 @@ public class Hike implements Serializable {
         this.wifi = wifi;
     }
 
+    // Getters and setters (annotated for Firestore field mapping)
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
 

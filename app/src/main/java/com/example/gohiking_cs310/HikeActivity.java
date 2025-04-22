@@ -1,114 +1,110 @@
 package com.example.gohiking_cs310;
 
-
-
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.appcompat.app.AppCompatActivity;
-
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicReference;
 
+/**
+ * HikeActivity displays detailed information about a specific hike and allows users
+ * to interact with that hike, including adding it to a custom list and submitting/viewing reviews.
+ * This activity is launched with a Hike object passed through an intent.
+ */
 public class HikeActivity extends AppCompatActivity {
+
+    // Firebase Firestore database instance
     FirebaseFirestore db;
 
+    // Firebase Authentication instance
+    public FirebaseAuth auth = FirebaseAuth.getInstance();
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.hikepage);
+        setContentView(R.layout.hikepage); // Set UI layout for the hike page
         db = FirebaseFirestore.getInstance();
-        Intent intent = getIntent();
+
+        // Receive hike data passed from the previous activity
         Hike hike = (Hike) getIntent().getSerializableExtra("hikeObject");
         TextView hikeTitleTextView = findViewById(R.id.textView4);
+
+        // Update hike title text
         if (hike != null) {
             Log.d("HikeActivity", "Hike details loaded: " + hike.getName());
             hikeTitleTextView.setText("Welcome To The " + hike.getName() + " Info Page!");
         } else {
             Log.e("HikeActivity", "Hike object is null!");
         }
-        Button showDetails = findViewById(R.id.buttonShowDetails);
-        showDetails.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showHikeInfo(hike);
-            }
+
+        // Button: View detailed hike info
+        findViewById(R.id.buttonShowDetails).setOnClickListener(v -> showHikeInfo(hike));
+
+        // Button: Add hike to a custom list
+        findViewById(R.id.buttonAddHike).setOnClickListener(v -> {
+            String listToUpdate = ((EditText) findViewById(R.id.editTextAddHike)).getText().toString().trim();
+            addCustomHike(hike, listToUpdate);
         });
 
-        Button addHike = findViewById(R.id.buttonAddHike);
-        addHike.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                EditText AddHike = findViewById(R.id.editTextAddHike);
-                String listToUpdate = AddHike.getText().toString().trim();
-                addCustomHike(hike,listToUpdate);
-            }
-        });
-
-        Button backToProfile = findViewById(R.id.buttonBackToProfile);
-        backToProfile.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(HikeActivity.this, UserActivity.class);
-                startActivity(intent);
-                finish();
-            }
-        });
-
-        Button backHome = findViewById(R.id.buttonBackHome);
-        backHome.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(HikeActivity.this, MapsActivity.class);
-                startActivity(intent);
-                finish();
-            }
-        });
-
-        Button reviewButton = findViewById(R.id.buttonReview);
-        reviewButton.setOnClickListener(v -> {
-            Intent intent2 = new Intent(HikeActivity.this, ReviewActivity.class);
-            assert hike != null;
-            intent2.putExtra("hikeId", hike.getId());
-            startActivity(intent2);
-        });
-
-        Button logoutButton = findViewById(R.id.buttonLogout);
-        logoutButton.setOnClickListener(v -> {
-            FirebaseAuth.getInstance().signOut(); // Log out the current user
-            Toast.makeText(HikeActivity.this, "Logged out successfully.", Toast.LENGTH_SHORT).show();
-
-            // go back to MapsActivity
-            Intent intent3 = new Intent(HikeActivity.this, MapsActivity.class);
-            intent3.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(intent3);
+        // Button: Navigate to profile
+        findViewById(R.id.buttonBackToProfile).setOnClickListener(v -> {
+            startActivity(new Intent(HikeActivity.this, UserActivity.class));
             finish();
         });
 
+        // Button: Navigate to map/home page
+        findViewById(R.id.buttonBackHome).setOnClickListener(v -> {
+            startActivity(new Intent(HikeActivity.this, MapsActivity.class));
+            finish();
+        });
+
+        // Button: Open review page
+        findViewById(R.id.buttonReview).setOnClickListener(v -> {
+            if (hike != null) {
+                Intent intent = new Intent(HikeActivity.this, ReviewActivity.class);
+                intent.putExtra("hikeId", hike.getId());
+                startActivity(intent);
+            }
+        });
+
+        // Button: Logout user
+        findViewById(R.id.buttonLogout).setOnClickListener(v -> {
+            FirebaseAuth.getInstance().signOut();
+            Toast.makeText(this, "Logged out successfully.", Toast.LENGTH_SHORT).show();
+            Intent logoutIntent = new Intent(this, MapsActivity.class);
+            logoutIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(logoutIntent);
+            finish();
+        });
     }
 
+    /**
+     * Displays detailed information about the selected hike including amenities and reviews.
+     * Data is retrieved asynchronously from Firestore.
+     */
     public void showHikeInfo(Hike hike) {
         if (hike == null) {
             Log.e("HikeActivity", "Hike object is null!");
             return;
         }
+
         List<Review> hikeReviews = new ArrayList<>();
+
+        // Fetch hike document and reviews from Firestore
         db.collection("Hikes").document(hike.getId()).get()
                 .addOnSuccessListener(documentSnapshot -> {
-                    List<Map<String, Object>> hikeReviewsMap = ( List<Map<String, Object>>) documentSnapshot.get("Reviews");
-                    if (hikeReviewsMap != null) {
-                        for (Map<String, Object> reviewMap : hikeReviewsMap) {
+                    List<Map<String, Object>> reviewMaps = (List<Map<String, Object>>) documentSnapshot.get("Reviews");
+
+                    if (reviewMaps != null) {
+                        for (Map<String, Object> reviewMap : reviewMaps) {
                             String reviewText = (String) reviewMap.get("reviewText");
                             Number ratingNumber = (Number) reviewMap.get("rating");
                             long rating = ratingNumber != null ? ratingNumber.longValue() : 0;
@@ -116,30 +112,28 @@ public class HikeActivity extends AppCompatActivity {
                             hikeReviews.add(new Review(reviewText, rating, userId));
                         }
                     }
-                    StringBuilder hikeDetails = new StringBuilder("Difficulty: " + hike.getDifficulty() + "\n" + "Trail Conditions: ");
-                    if (hike.getTrailConditions() != "") {
-                        hikeDetails.append(hike.getTrailConditions()).append("\n");
-                    }
-                    else {hikeDetails.append("Trail Conditions not available.\n");}
+
+                    // Build display string for hike details
+                    StringBuilder hikeDetails = new StringBuilder("Difficulty: " + hike.getDifficulty() + "\nTrail Conditions: ");
+                    hikeDetails.append(!hike.getTrailConditions().isEmpty() ? hike.getTrailConditions() + "\n" : "Trail Conditions not available.\n");
+
                     if (!hikeReviews.isEmpty()) {
-                        int numRatings = hikeReviews.size();
                         double totalRating = 0;
-                        for (Review review : hikeReviews) {
-                            totalRating += review.getRating();
-                        }
-                        double averageRating = totalRating / numRatings;
-                        hikeDetails.append("Average Rating: ").append(averageRating).append("\n");
-                        hikeDetails.append("Reviewed by: " + numRatings + " users").append("\n");
+                        for (Review review : hikeReviews) totalRating += review.getRating();
+                        double averageRating = totalRating / hikeReviews.size();
+                        hikeDetails.append("Average Rating: ").append(averageRating).append("\nReviewed by: ").append(hikeReviews.size()).append(" users\n");
                     } else {
                         hikeDetails.append("No reviews for this hike yet.\n");
                     }
-                    hikeDetails.append("Amenities: \n" +
-                            "Bathrooms: " + (hike.isBathrooms() ? "Yes" : "No") + "\n" +
-                            "Parking: " + (hike.isParking() ? "Yes" : "No") + "\n" +
-                            "Trail Markers: " + (hike.isTrailMarkers() ? "Yes" : "No") + "\n" +
-                            "Trash Cans: " + (hike.isTrashCans() ? "Yes" : "No") + "\n" +
-                            "Water Fountains: " + (hike.isWaterFountains() ? "Yes" : "No") + "\n" +
-                            "WiFi: " + (hike.isWifi() ? "Yes" : "No") + "\n");
+
+                    hikeDetails.append("Amenities: \n")
+                            .append("Bathrooms: ").append(hike.isBathrooms() ? "Yes" : "No").append("\n")
+                            .append("Parking: ").append(hike.isParking() ? "Yes" : "No").append("\n")
+                            .append("Trail Markers: ").append(hike.isTrailMarkers() ? "Yes" : "No").append("\n")
+                            .append("Trash Cans: ").append(hike.isTrashCans() ? "Yes" : "No").append("\n")
+                            .append("Water Fountains: ").append(hike.isWaterFountains() ? "Yes" : "No").append("\n")
+                            .append("WiFi: ").append(hike.isWifi() ? "Yes" : "No").append("\n");
+
                     new AlertDialog.Builder(HikeActivity.this)
                             .setTitle(hike.getName())
                             .setMessage(hikeDetails.toString())
@@ -147,41 +141,48 @@ public class HikeActivity extends AppCompatActivity {
                             .show();
                 });
     }
+
+    /**
+     * Adds the selected hike to a custom hike list associated with the current user.
+     * Prevents duplicate entries and ensures list existence before update.
+     */
     public void addCustomHike(Hike hike, String listName) {
         String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
         if (hike == null || listName == null) {
-            Toast.makeText(HikeActivity.this, "Hike or list information is missing.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Hike or list information is missing.", Toast.LENGTH_SHORT).show();
             return;
         }
+
         db.collection("Users").document(currentUserId).get()
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists()) {
                         Map<String, List<String>> customList = (Map<String, List<String>>) documentSnapshot.get("customList");
+
                         if (customList == null || !customList.containsKey(listName)) {
-                            Log.d("HikeActivity", "Hike list '" + listName + "' does not exist in user's custom lists.");
-                            Toast.makeText(HikeActivity.this, "Hike list '" + listName + "' does not exist.", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(this, "Hike list '" + listName + "' does not exist.", Toast.LENGTH_SHORT).show();
                             return;
                         }
+
                         List<String> hikeList = customList.get(listName);
+
                         if (!hikeList.contains(hike.getName())) {
                             hikeList.add(hike.getName());
+
                             db.collection("Users").document(currentUserId)
                                     .update("customList", customList)
-                                    .addOnSuccessListener(aVoid -> {
-                                        Toast.makeText(HikeActivity.this, hike.getName() + " added to " + listName, Toast.LENGTH_SHORT).show();
-                                    })
-                                    .addOnFailureListener(e -> {
-                                        Toast.makeText(HikeActivity.this, "Failed to update hike list.", Toast.LENGTH_SHORT).show();
-                                    });
+                                    .addOnSuccessListener(aVoid ->
+                                            Toast.makeText(this, hike.getName() + " added to " + listName, Toast.LENGTH_SHORT).show())
+                                    .addOnFailureListener(e ->
+                                            Toast.makeText(this, "Failed to update hike list.", Toast.LENGTH_SHORT).show());
                         } else {
-                            Toast.makeText(HikeActivity.this, hike.getName() + " is already in " + listName, Toast.LENGTH_SHORT).show();
+                            Toast.makeText(this, hike.getName() + " is already in " + listName, Toast.LENGTH_SHORT).show();
                         }
                     } else {
-                        Toast.makeText(HikeActivity.this, "Failed to find user information.", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, "Failed to find user information.", Toast.LENGTH_SHORT).show();
                     }
                 })
-                .addOnFailureListener(e -> {
-                    Toast.makeText(HikeActivity.this, "Failed to fetch user information.", Toast.LENGTH_SHORT).show();
-                });
+                .addOnFailureListener(e ->
+                        Toast.makeText(this, "Failed to fetch user information.", Toast.LENGTH_SHORT).show());
     }
 }

@@ -21,33 +21,51 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+/**
+ * ProfilePageTests contains black box UI tests for the UserActivity screen.
+ * It validates key user profile features such as button visibility, friend management,
+ * custom hike list creation, and hike search functionality using Espresso and FirebaseAuth.
+ */
+
 @RunWith(AndroidJUnit4.class)
 public class ProfilePageTests {
 
+    // Launches UserActivity before each test method
     @Rule
     public ActivityScenarioRule<UserActivity> activityRule =
             new ActivityScenarioRule<>(UserActivity.class);
 
-    // BLACK BOX TEST #4: Verify Buttons and Text View Visibility
+    /**
+     * BLACK BOX TEST #4:
+     * Verifies that essential navigation buttons are visible on the profile screen:
+     * - "Back to Home"
+     * - "Log Out"
+     */
     @Test
     public void testProfileButtonsAndTextViewVisibility() {
-        // Verify "Back" button is displayed
         onView(withId(R.id.buttonBackHome))
                 .check(matches(isDisplayed()));
 
-        // Verify "Log Out" button is displayed
         onView(withId(R.id.buttonLogOut))
                 .check(matches(isDisplayed()));
     }
 
-    // BLACK BOX TEST #5: Add a Friend and Verify in My Friends Section
+    /**
+     * BLACK BOX TEST #5:
+     * Simulates adding a friend and verifies the friend appears in the user's friend list dialog.
+     * Steps:
+     * - Sign in with test user
+     * - Add a friend by email
+     * - Navigate to "My Friends" section
+     * - Verify that the dialog contains the expected friend
+     */
     @Test
     public void testAddFriendAndVerifyMyFriends() throws InterruptedException {
-        // Synchronize user login
         CountDownLatch signInLatch = new CountDownLatch(1);
 
+        // Sign in to load authenticated user context
         activityRule.getScenario().onActivity(activity -> {
-            FirebaseAuth.getInstance().signInWithEmailAndPassword("martinestrin2@yahoo.com", "WHITEBOXTEST2")
+            FirebaseAuth.getInstance().signInWithEmailAndPassword("newheree@gmail.com", "123456")
                     .addOnCompleteListener(task -> {
                         if (task.isSuccessful()) {
                             signInLatch.countDown();
@@ -57,47 +75,52 @@ public class ProfilePageTests {
                     });
         });
 
-        signInLatch.await(); // Wait for sign-in to complete
+        signInLatch.await(); // Wait for authentication to complete
+        activityRule.getScenario().recreate(); // Refresh activity with authenticated user
 
-        // Recreate activity to load authenticated user data
-        activityRule.getScenario().recreate();
-
-        // Enter email in the "Add Friend" field
+        // Enter friend's email and add
         onView(withId(R.id.editTextAddFriend))
-                .perform(typeText("dougpete@gmail.com"), closeSoftKeyboard());
+                .perform(typeText("white_box_testing_user@gmail.com"), closeSoftKeyboard());
 
-        // Click on the "Add Friend" button
         onView(withId(R.id.buttonAddFriend))
                 .check(matches(isDisplayed()))
                 .perform(click());
 
-        // Navigate to the "My Friends" section
+        // Open My Friends dialog
         onView(withId(R.id.buttonMyFriends))
                 .check(matches(isDisplayed()))
                 .perform(click());
 
-        // Verify the "Your Friends" dialog is displayed
+        // Verify dialog and friend email appear
         onView(withText("Your Friends"))
-                .inRoot(isDialog()) // Ensure we're checking the dialog
+                .inRoot(isDialog())
                 .check(matches(isDisplayed()));
 
-        // Verify "dougpete@gmail.com" is displayed in the dialog
-        onView(withText("dougpete@gmail.com"))
-                .inRoot(isDialog()) // Ensure the check is specific to the dialog
+        onView(withText("white_box_testing_user@gmail.com"))
+                .inRoot(isDialog())
                 .check(matches(isDisplayed()));
     }
 
-    // BLACK BOX TEST #6: Add a Custom List Named "MyFavoriteHikes"
+    /**
+     * BLACK BOX TEST #6:
+     * Tests creation of a custom list called "MyFavoriteHikes" from the user profile.
+     * Steps:
+     * - Log in
+     * - Navigate to custom list screen
+     * - Enter list name
+     * - Submit creation request
+     */
     @Test
     public void testAddCustomList() {
         activityRule.getScenario().onActivity(activity -> {
-            FirebaseAuth.getInstance().signInWithEmailAndPassword("martinestrin2@yahoo.com", "WHITEBOXTEST2")
-                .addOnCompleteListener(task -> {
-                    if (!task.isSuccessful()) {
-                        throw new AssertionError("Failed to log in user for testing.");
-                    }
-                });
+            FirebaseAuth.getInstance().signInWithEmailAndPassword("white_box_testing_user@gmail.com", "password123")
+                    .addOnCompleteListener(task -> {
+                        if (!task.isSuccessful()) {
+                            throw new AssertionError("Failed to log in user for testing.");
+                        }
+                    });
         });
+
         activityRule.getScenario().recreate();
 
         onView(withId(R.id.buttonCustomList))
@@ -110,34 +133,47 @@ public class ProfilePageTests {
         onView(withId(R.id.buttonCreateList))
                 .check(matches(isDisplayed()))
                 .perform(click());
-
     }
 
-    // BLACK BOX TEST #7: Search for "Griffith Observatory" and Verify Hike Page
+    /**
+     * BLACK BOX TEST #7:
+     * Tests the hike search feature using the query "Griffith Observatory".
+     * Steps:
+     * - Log in
+     * - Search for the hike
+     * - Click on the hike item
+     * - Verify hike detail dialog appears
+     */
     @Test
     public void testSearchForHikeAndVerify() {
         activityRule.getScenario().onActivity(activity -> {
-            FirebaseAuth.getInstance().signInWithEmailAndPassword("martinestrin2@yahoo.com", "WHITEBOXTEST2")
+            FirebaseAuth.getInstance().signInWithEmailAndPassword("white_box_testing_user@gmail.com", "password123")
                     .addOnCompleteListener(task -> {
                         if (!task.isSuccessful()) {
                             throw new AssertionError("Failed to log in user for testing.");
                         }
                     });
         });
+
         activityRule.getScenario().recreate();
 
-        // Step 1: Enter "Griffith Observatory" in the search field
+        // Enter search query
         onView(withId(R.id.editTextSearchHike))
                 .perform(typeText("Griffith Observatory"), closeSoftKeyboard());
 
-        // Step 2: Click the search button
+        // Perform search
         onView(withId(R.id.search_button))
                 .check(matches(isDisplayed()))
                 .perform(click());
 
-        // Step 3: Verify that the hike details page is displayed
+        // Click "Show Details" on hike result
+        onView(withId(R.id.buttonShowDetails))
+                .check(matches(isDisplayed()))
+                .perform(click());
+
+        // Verify hike detail dialog appears with correct title
         onView(withText("Griffith Observatory"))
+                .inRoot(isDialog())
                 .check(matches(isDisplayed()));
     }
-
 }

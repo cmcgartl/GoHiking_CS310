@@ -1,22 +1,24 @@
 package com.example.gohiking_cs310;
 
-import android.app.Activity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
 import java.util.List;
 
+//Recycler view to display and allow users to interact with group activity page
 public class GroupActivityAdapter extends RecyclerView.Adapter<GroupActivityAdapter.ViewHolder> {
 
+    //list to hold group activity objects
     private List<GroupActivity> groupActivities;
+
+    //listen for user clicks
     private OnGroupActivityClickListener clickListener;
 
+    //constructor initializes the adapter with group activity list and click listener
     public GroupActivityAdapter(List<GroupActivity> groupActivities, OnGroupActivityClickListener clickListener) {
         this.groupActivities = groupActivities;
         this.clickListener = clickListener;
@@ -24,20 +26,24 @@ public class GroupActivityAdapter extends RecyclerView.Adapter<GroupActivityAdap
 
     @NonNull
     @Override
+    //view holder to display the recycler view
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_group_activity, parent, false);
         return new ViewHolder(view);
     }
 
     @Override
+    //allows recycler view to display data at specific positions on page
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         GroupActivity groupActivity = groupActivities.get(position);
 
+        //set ui values
         holder.titleTextView.setText(groupActivity.getTitle());
         holder.locationTextView.setText("Location: " + groupActivity.getLocation());
         holder.dateTextView.setText("Date: " + groupActivity.getTime().toString());
         holder.maxParticipantsTextView.setText("Max Participants: " + groupActivity.getMaxParticipants());
 
+        //set click listeners
         holder.joinButton.setOnClickListener(v -> clickListener.onJoinClick(groupActivity));
         holder.leaveButton.setOnClickListener(v -> clickListener.onLeaveClick(groupActivity));
         holder.seeMembersButton.setOnClickListener(v -> clickListener.onSeeMembersClick(groupActivity));
@@ -45,6 +51,7 @@ public class GroupActivityAdapter extends RecyclerView.Adapter<GroupActivityAdap
     }
 
     @Override
+    //returns number of group activities
     public int getItemCount() {
         return groupActivities.size();
     }
@@ -53,6 +60,7 @@ public class GroupActivityAdapter extends RecyclerView.Adapter<GroupActivityAdap
         TextView titleTextView, locationTextView, dateTextView, maxParticipantsTextView;
         Button joinButton, leaveButton, seeMembersButton, addMemberButton;
 
+        //initialize textview and buttons
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             titleTextView = itemView.findViewById(R.id.titleTextView);

@@ -3,6 +3,11 @@ package com.example.gohiking_cs310;
 import java.util.ArrayList;
 import java.util.Date;
 
+/**
+ * Class represents a Group Activity trail
+ * This class serves as a data model for Firestore documents in the "Group Activities" collection
+ */
+
 public class GroupActivity {
     private String activityID;
     private String title;
@@ -14,6 +19,10 @@ public class GroupActivity {
     // Default constructor (required for Firestore)
     public GroupActivity() {}
 
+    /**
+     * Full constructor for creating a complete Group Activity object.
+     * Used when populating the UI or submitting to Firestore.
+     */
     public GroupActivity(String activityID, String title, String location, Date time, int maxParticipants) {
         this.activityID = activityID;
         this.title = title;
@@ -23,6 +32,7 @@ public class GroupActivity {
         this.participants = new ArrayList<>();
     }
 
+    // Getters and setters
     public String getActivityID() {
         return activityID;
     }

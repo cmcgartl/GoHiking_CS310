@@ -37,37 +37,43 @@ android {
 }
 
 dependencies {
-    implementation("com.google.android.gms:play-services-base:18.1.0")
-    implementation("com.google.firebase:firebase-firestore:24.1.0")
-    implementation("com.google.firebase:firebase-auth:21.1.0")
+// Firebase
     implementation(platform("com.google.firebase:firebase-bom:33.5.1"))
     implementation("com.google.firebase:firebase-analytics")
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-firestore")
+
+    // Google Play Services & Maps
+    implementation("com.google.android.gms:play-services-base:18.1.0")
+    implementation("com.google.android.gms:play-services-maps:18.1.0")
+
+    // AndroidX + Material
     implementation(libs.appcompat)
     implementation(libs.material)
-    implementation(libs.play.services.maps)
     implementation(libs.constraintlayout)
-    implementation("com.google.android.gms:play-services-maps:19.0.0")
     implementation(libs.cardview)
     implementation(libs.places)
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.ext.junit)
-    androidTestImplementation("androidx.test.espresso:espresso-intents:3.5.1")
+
+    // Unit Tests
+    testImplementation("junit:junit:4.13.2")
     testImplementation("org.hamcrest:hamcrest-library:2.2")
-    testImplementation("org.junit.jupiter:junit-jupiter:5.10.0") // JUnit 5 for unit tests
-    testImplementation("org.mockito:mockito-core:5.6.0") // Mockito core
-    testImplementation("org.mockito.kotlin:mockito-kotlin:5.0.0") // Mockito Kotlin
+    testImplementation("org.junit.jupiter:junit-jupiter:5.10.0")
     testImplementation("org.mockito:mockito-core:4.11.0")
-    testImplementation("org.mockito:mockito-inline:4.11.0") // For mocking final classes if needed
+    testImplementation("org.mockito:mockito-inline:4.11.0")
+    testImplementation("org.mockito.kotlin:mockito-kotlin:5.0.0")
+
+    // Instrumented Tests
+    androidTestImplementation("androidx.test:runner:1.5.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
+    androidTestImplementation("androidx.test:rules:1.5.0")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
-    androidTestImplementation(libs.ext.junit) // Android JUnit
-    androidTestImplementation(libs.espresso.core) // Espresso for UI testing
+    androidTestImplementation("androidx.test.espresso:espresso-intents:3.5.1")
+    androidTestImplementation("com.google.firebase:firebase-auth:22.3.1")
+    androidTestImplementation("com.google.firebase:firebase-firestore:24.9.1")
     androidTestImplementation("org.mockito:mockito-android:5.6.0")
-    androidTestImplementation(libs.testng) // Mockito for instrumentation tests
-    implementation ("com.google.android.gms:play-services-maps:18.1.0")
-    implementation ("com.google.android.material:material:1.12.0")
+    androidTestImplementation ("androidx.test.espresso:espresso-idling-resource:3.5.1")
+    androidTestImplementation("androidx.test.ext:junit:1.1.5")
+    androidTestImplementation("org.hamcrest:hamcrest-library:2.2")
 
 }
 

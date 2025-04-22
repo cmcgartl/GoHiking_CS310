@@ -27,25 +27,21 @@ import org.junit.runner.RunWith;
 
 import java.util.regex.Matcher;
 
+/**
+ * GroupActivityTests contains black box UI tests for the JoinAndViewGroups activity.
+ * These tests use Espresso to verify button visibility and behavior related to group creation.
+ */
 @RunWith(AndroidJUnit4.class)
 public class GroupActivityTests {
 
+    // Launches the JoinAndViewGroups activity before each test method runs
     @Rule
     public ActivityScenarioRule<JoinAndViewGroups> activityRule =
             new ActivityScenarioRule<>(JoinAndViewGroups.class);
 
-    // BLACK BOX TEST #8: Verify Buttons in the Group Activities Page
-    @Test
-    public void testGroupActivitiesButtonsVisibility() {
-        onView(withId(R.id.creategroup))
-                .check(matches(isDisplayed()));
-        onView(withId(R.id.go_home))
-                .check(matches(isDisplayed()));
-    }
-
     // BLACK BOX TEST #9: Create a New Group
     @Test
-    public void testCreateNewGroup() {
+    public void testCreateNewGroupAndButtonVisibility() {
         activityRule.getScenario().onActivity(activity -> {
             FirebaseAuth.getInstance().signInWithEmailAndPassword("martinestrin2@yahoo.com", "WHITEBOXTEST2")
                 .addOnCompleteListener(task -> {
@@ -54,10 +50,10 @@ public class GroupActivityTests {
                     }
                 });
         });
-
+        // Check that the group creation and back button are still visible after sign-in
         onView(withId(R.id.creategroup))
                 .check(matches(isDisplayed()));
-
+        onView(withId(R.id.go_home))
+                .check(matches(isDisplayed()));
     }
-
 }

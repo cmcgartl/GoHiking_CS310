@@ -1,15 +1,24 @@
 package com.example.gohiking_cs310;
 
 import org.junit.Test;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
 import static org.junit.Assert.*;
 
+/**
+ * Unit tests for the GroupActivity class.
+ * Tests:
+ * - Creation of GroupActivity objects with valid data
+ * - Updating scheduled time of a group
+ * - Enforcing the maximum number of participants
+ */
 public class GroupActivityUnitTests {
 
-    // WHITE BOX TEST #3: Verify Group Creation with Valid Inputs
+    /**
+     * WHITE BOX TEST #3:
+     * Verifies that a GroupActivity is correctly created using valid inputs.
+     * Confirms that all fields are initialized and that the participant list is empty on creation.
+     */
     @Test
     public void testCreateGroup_ValidInputs() {
         GroupActivity group = new GroupActivity(
@@ -28,7 +37,11 @@ public class GroupActivityUnitTests {
         assertTrue(group.getParticipants().isEmpty());
     }
 
-    // WHITE BOX TEST #4: Verify Updating Time in GroupActivity
+    /**
+     * WHITE BOX TEST #4:
+     * Validates the ability to update the scheduled time of a GroupActivity.
+     * Ensures that the new time replaces the previous value as expected.
+     */
     @Test
     public void testUpdateTimeInGroupActivity() {
         String activityID = "testID456";
@@ -39,7 +52,7 @@ public class GroupActivityUnitTests {
 
         GroupActivity groupActivity = new GroupActivity(activityID, title, location, initialTime, maxParticipants);
 
-        Date newTime = new Date(initialTime.getTime() + 3600000); // 1 hour later
+        Date newTime = new Date(initialTime.getTime() + 3600000); // +1 hour
         groupActivity.setTime(newTime);
 
         assertNotNull("Time should not be null after update.", groupActivity.getTime());
@@ -47,7 +60,11 @@ public class GroupActivityUnitTests {
         assertNotEquals("Time should not match the initial value after update.", initialTime, groupActivity.getTime());
     }
 
-    // WHITE BOX TEST #5: Verify Participants Cannot Exceed Max Limit
+    /**
+     * WHITE BOX TEST #5:
+     * Tests the enforcement of the maximum number of participants.
+     * Adds participants up to the max limit and ensures no additional members can join.
+     */
     @Test
     public void testJoinGroup_WhenFull() {
         GroupActivity group = new GroupActivity(
@@ -63,9 +80,10 @@ public class GroupActivityUnitTests {
         participants.add("user2");
         participants.add("user3");
 
+        // Attempting to add a fourth participant should not be allowed logically
         if (participants.size() >= group.getMaxParticipants()) {
             assertEquals(3, participants.size());
-            assertFalse(participants.contains("user4"));
+            assertFalse(participants.contains("user4")); // user4 should not be present
         } else {
             participants.add("user4");
         }
